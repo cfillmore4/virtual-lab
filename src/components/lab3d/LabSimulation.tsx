@@ -19,10 +19,13 @@ import ChromiumController from './instruments/ChromiumController'
 import MassSpectrometer   from './instruments/MassSpectrometer'
 import Sequencer          from './instruments/Sequencer'
 
-import { useLabStore }  from '../../store/labStore'
-import type { RobotId } from '../../store/labStore'
-import RequestPanel     from '../ui/RequestPanel'
-import QueueSidebar     from '../ui/QueueSidebar'
+import { useLabStore }     from '../../store/labStore'
+import type { RobotId, ScientistId } from '../../store/labStore'
+import RequestPanel        from '../ui/RequestPanel'
+import QueueSidebar        from '../ui/QueueSidebar'
+import ScientistTaskPanel  from '../ui/ScientistTaskPanel'
+import ProgramPanel        from '../ui/ProgramPanel'
+import ResultsDrawer       from '../ui/ResultsDrawer'
 
 // ─── Intro camera sweep ───────────────────────────────────────────────────────
 
@@ -53,14 +56,20 @@ function IntroCam() {
 // ─── Scene ────────────────────────────────────────────────────────────────────
 
 function SceneInner() {
-  const robots        = useLabStore((s) => s.robots)
-  const queue         = useLabStore((s) => s.queue)
-  const robotComplete = useLabStore((s) => s.robotComplete)
+  const robots          = useLabStore((s) => s.robots)
+  const queue           = useLabStore((s) => s.queue)
+  const robotComplete   = useLabStore((s) => s.robotComplete)
+  const scientists      = useLabStore((s) => s.scientists)
+  const selectScientist = useLabStore((s) => s.selectScientist)
 
   function getExperiment(robotId: RobotId) {
     const robot = robots.find((r) => r.id === robotId)
     if (!robot || !robot.experimentId) return null
     return queue.find((e) => e.id === robot.experimentId && e.status === 'running') ?? null
+  }
+
+  function getScientistTask(id: ScientistId) {
+    return scientists.find((s) => s.id === id)?.task ?? null
   }
 
   return (
@@ -176,10 +185,51 @@ function SceneInner() {
       <group position={[-1.5, 0, -8.5]}><MassSpectrometer /></group>
       <group position={[ 8.5, 0, -8.5]}><Sequencer color="#00d4ff" /></group>
 
-      {/* ── Lab Technicians — each self-navigates its own route ──────────── */}
-      <LabTechnician route="A" hairColor="#2a1a0a" phaseOffset={0}   />
-      <LabTechnician route="B" hairColor="#7a3a18" phaseOffset={5.5} />
-      <LabTechnician route="C" hairColor="#7a4520" skinColor="#c49060" phaseOffset={11} female />
+      {/* ── Lab Technicians — click to assign tasks ───────────────────────── */}
+      <LabTechnician
+        route="A" hairColor="#2a1a0a" phaseOffset={0}
+        task={getScientistTask('A')}
+        onSelect={() => selectScientist('A')}
+      />
+      <LabTechnician
+        route="B" hairColor="#7a3a18" phaseOffset={5.5}
+        task={getScientistTask('B')}
+        onSelect={() => selectScientist('B')}
+      />
+      <LabTechnician
+        route="C" hairColor="#7a4520" skinColor="#c49060" phaseOffset={11} female
+        task={getScientistTask('C')}
+        onSelect={() => selectScientist('C')}
+      />
+
+      {/* ── Workstation glow rings — appear when a scientist is on task ───── */}
+      {scientists.map((sc) =>
+        sc.task ? (
+          <group key={sc.id}>
+            <mesh
+              position={[sc.task.workstationX, -0.58, sc.task.workstationZ]}
+              rotation={[-Math.PI / 2, 0, 0]}
+            >
+              <ringGeometry args={[0.55, 0.95, 32]} />
+              <meshStandardMaterial
+                color={sc.task.accentColor}
+                emissive={sc.task.accentColor}
+                emissiveIntensity={1.4}
+                transparent
+                opacity={0.55}
+                depthWrite={false}
+              />
+            </mesh>
+            <pointLight
+              position={[sc.task.workstationX, 1.2, sc.task.workstationZ]}
+              color={sc.task.accentColor}
+              intensity={1.8}
+              distance={6}
+              decay={2}
+            />
+          </group>
+        ) : null
+      )}
 
       {/* ── Post-processing ───────────────────────────────────────────────── */}
       {/*
@@ -215,6 +265,11 @@ function SceneInner() {
 export default function LabSimulation() {
   const openPanel        = useLabStore((s) => s.openRequestPanel)
   const requestPanelOpen = useLabStore((s) => s.requestPanelOpen)
+  const programPanelOpen = useLabStore((s) => s.programPanelOpen)
+  const openProgramPanel = useLabStore((s) => s.openProgramPanel)
+  const startProgram     = useLabStore((s) => s.startProgram)
+  const program          = useLabStore((s) => s.program)
+  const resultsPhaseId   = useLabStore((s) => s.resultsPhaseId)
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#5a6e7a' }}>
@@ -257,14 +312,44 @@ export default function LabSimulation() {
       </div>
 
       <QueueSidebar />
+      <ScientistTaskPanel />
 
       {requestPanelOpen && <RequestPanel />}
+      {programPanelOpen && <ProgramPanel />}
+      {resultsPhaseId && <ResultsDrawer />}
 
-      {!requestPanelOpen && (
+      {!requestPanelOpen && !programPanelOpen && (
         <div style={{
           position: 'absolute', bottom: 28, left: '50%',
           transform: 'translateX(-50%)',
+          display: 'flex', gap: 12,
         }}>
+          {/* Research Program button */}
+          <button
+            onClick={() => program ? openProgramPanel() : startProgram()}
+            style={{
+              fontFamily: 'monospace', fontSize: 12, fontWeight: 700,
+              letterSpacing: '0.2em', textTransform: 'uppercase',
+              color: '#050a0f',
+              background: 'linear-gradient(135deg, #ff6b35, #c94d1e)',
+              border: 'none', borderRadius: 8,
+              padding: '12px 28px', cursor: 'pointer',
+              boxShadow: '0 0 28px rgba(255,107,53,0.5), 0 4px 12px rgba(0,0,0,0.4)',
+              transition: 'box-shadow 0.2s, transform 0.15s',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 48px rgba(255,107,53,0.75), 0 4px 16px rgba(0,0,0,0.5)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.boxShadow = '0 0 28px rgba(255,107,53,0.5), 0 4px 12px rgba(0,0,0,0.4)'
+              e.currentTarget.style.transform = 'translateY(0)'
+            }}
+          >
+            {program ? '▶ PCSK9 Program' : '▶ Research Program'}
+          </button>
+
+          {/* Request Experiment button */}
           <button
             onClick={openPanel}
             style={{
@@ -273,17 +358,17 @@ export default function LabSimulation() {
               color: '#050a0f',
               background: 'linear-gradient(135deg, #00d4ff, #0090bb)',
               border: 'none', borderRadius: 8,
-              padding: '12px 32px', cursor: 'pointer',
+              padding: '12px 28px', cursor: 'pointer',
               boxShadow: '0 0 28px rgba(0,212,255,0.5), 0 4px 12px rgba(0,0,0,0.4)',
               transition: 'box-shadow 0.2s, transform 0.15s',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.boxShadow = '0 0 48px rgba(0,212,255,0.75), 0 4px 16px rgba(0,0,0,0.5)'
-              e.currentTarget.style.transform = 'translateX(-50%) translateY(-2px)'
+              e.currentTarget.style.transform = 'translateY(-2px)'
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.boxShadow = '0 0 28px rgba(0,212,255,0.5), 0 4px 12px rgba(0,0,0,0.4)'
-              e.currentTarget.style.transform = 'translateX(-50%) translateY(0)'
+              e.currentTarget.style.transform = 'translateY(0)'
             }}
           >
             + Request Experiment
