@@ -59,6 +59,7 @@ export default function ProgramPanel() {
       style={{
         position: 'absolute', inset: 0,
         display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+      paddingBottom: 24,
         background: 'rgba(2,8,16,0.65)',
         backdropFilter: 'blur(4px)',
         zIndex: 20,
@@ -70,10 +71,11 @@ export default function ProgramPanel() {
       <div style={{
         width: '100%',
         maxWidth: 900,
+        maxHeight: 'calc(88vh - 40px)',
+        overflowY: 'auto',
         background: 'rgba(4,9,18,0.97)',
         border: '1px solid #1a2940',
-        borderBottom: 'none',
-        borderRadius: '16px 16px 0 0',
+        borderRadius: 16,
         padding: '28px 28px 36px',
         backdropFilter: 'blur(20px)',
         boxShadow: '0 -16px 60px rgba(0,0,0,0.75)',
