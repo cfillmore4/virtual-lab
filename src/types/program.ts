@@ -64,7 +64,7 @@ export interface Phase3Results {
   selectedFormulation: string | null
 }
 
-export type PhaseResults = Phase1Results | Phase2Results | Phase3Results | Phase4Results
+export type PhaseResults = Phase1Results | Phase2Results | Phase3Results | Phase4Results | Phase5Results
 
 // ── Phase & Program types ─────────────────────────────────────────────────────
 
@@ -89,6 +89,7 @@ export interface Program {
   selectedGuide: string | null
   selectedFormulation: string | null
   confirmedEfficacy: boolean | null
+  safetyCleared: boolean | null
   phases: ProgramPhase[]
 }
 
@@ -258,6 +259,37 @@ export const PHASE4_LDL_UPTAKE: LDLUptakePoint[] = [
   { condition: 'siRNA ctrl',    foldChange: 3.5, isWinner: false },
 ]
 
+// ── Phase 5 off-target data ───────────────────────────────────────────────────
+// Cas-OFFinder top-10 predicted off-target sites for G7 (TGGACTCAGCGGCTGATCAA).
+// AMP-seq at each locus: all sites pass with <1% editing; threshold is 2%.
+
+export interface OffTargetSite {
+  id: string
+  chr: string
+  position: string
+  geneContext: string
+  mismatches: number
+  editingPct: number
+}
+
+export interface Phase5Results {
+  kind: 'safety-screen'
+  sites: OffTargetSite[]
+}
+
+export const PHASE5_OFFTARGET_DATA: OffTargetSite[] = [
+  { id: 'OT-1',  chr: 'chr1',  position: '200,341,892', geneContext: 'CELSR2 (intron 8)',  mismatches: 2, editingPct: 0.8 },
+  { id: 'OT-2',  chr: 'chr3',  position: '47,821,456',  geneContext: 'Intergenic',          mismatches: 2, editingPct: 0.4 },
+  { id: 'OT-3',  chr: 'chr6',  position: '138,290,100', geneContext: 'SYNE1 (intron 4)',    mismatches: 3, editingPct: 0.3 },
+  { id: 'OT-4',  chr: 'chr9',  position: '112,043,788', geneContext: 'Intergenic',          mismatches: 3, editingPct: 0.2 },
+  { id: 'OT-5',  chr: 'chr11', position: '65,321,700',  geneContext: 'MADD (intron 2)',     mismatches: 3, editingPct: 0.6 },
+  { id: 'OT-6',  chr: 'chr2',  position: '183,492,211', geneContext: 'Intergenic',          mismatches: 4, editingPct: 0.1 },
+  { id: 'OT-7',  chr: 'chr14', position: '23,891,456',  geneContext: 'Intergenic',          mismatches: 4, editingPct: 0.2 },
+  { id: 'OT-8',  chr: 'chr17', position: '43,821,099',  geneContext: 'Intergenic',          mismatches: 4, editingPct: 0.3 },
+  { id: 'OT-9',  chr: 'chr19', position: '11,034,556',  geneContext: 'ZNF518A (intron 1)', mismatches: 4, editingPct: 0.1 },
+  { id: 'OT-10', chr: 'chr22', position: '21,344,901',  geneContext: 'Intergenic',          mismatches: 5, editingPct: 0.1 },
+]
+
 // ── Program factory ───────────────────────────────────────────────────────────
 
 export function createPCSK9Program(): Program {
@@ -269,6 +301,7 @@ export function createPCSK9Program(): Program {
     selectedGuide: null,
     selectedFormulation: null,
     confirmedEfficacy: null,
+    safetyCleared: null,
     phases: [
       {
         id: 'target-validation',
@@ -358,7 +391,14 @@ export function createPCSK9Program(): Program {
         detail: 'AMP-seq at Cas-OFFinder-predicted off-target sites. Any site with >2% editing triggers guide deprioritization or switch to high-fidelity Cas9 variant.',
         accentColor: '#f59e0b',
         experimentType: 'amplicon',
-        plateSamples: [],
+        plateSamples: [
+          { cols: [1, 2],   label: 'OT-1 to OT-2',  color: '#f59e0b', group: 'ot-12',    description: '2-mismatch loci — highest predicted risk' },
+          { cols: [3, 4],   label: 'OT-3 to OT-4',  color: '#f59e0b', group: 'ot-34',    description: '3-mismatch loci' },
+          { cols: [5, 6],   label: 'OT-5 to OT-6',  color: '#d97706', group: 'ot-56',    description: '3-mismatch loci' },
+          { cols: [7, 8],   label: 'OT-7 to OT-8',  color: '#b45309', group: 'ot-78',    description: '4-mismatch loci' },
+          { cols: [9, 10],  label: 'OT-9 to OT-10', color: '#92400e', group: 'ot-910',   description: '4–5 mismatch loci' },
+          { cols: [11, 12], label: 'On-target ctrl', color: '#10b981', group: 'ontarget', description: 'G7 PCSK9 exon 7 — positive editing control' },
+        ],
         status: 'locked',
       },
     ],

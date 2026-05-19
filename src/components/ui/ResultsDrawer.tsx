@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLabStore } from '../../store/labStore'
-import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, LNP_FORMULATION_DETAILS, PHASE4_WESTERN, PHASE4_LDL_UPTAKE } from '../../types/program'
-import type { DEGene, GuideResult } from '../../types/program'
+import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, LNP_FORMULATION_DETAILS, PHASE4_WESTERN, PHASE4_LDL_UPTAKE, PHASE5_OFFTARGET_DATA } from '../../types/program'
+import type { DEGene, GuideResult, OffTargetSite } from '../../types/program'
 
 // ── Volcano plot (Phase 1) ────────────────────────────────────────────────────
 
@@ -927,6 +927,237 @@ function Phase4Content({ onConfirm }: { onConfirm: (val: string) => void }) {
   )
 }
 
+// ── Phase 5: Off-Target Safety Screen ────────────────────────────────────────
+
+const AMBER = '#f59e0b'
+const OT_CHART_MAX = 2.5   // x-axis max %; threshold at 2% is visible at 80%
+const OT_THRESHOLD = 2.0   // fail threshold
+
+function mmColor(mm: number): string {
+  if (mm <= 2) return '#f59e0b'
+  if (mm === 3) return '#d97706'
+  if (mm === 4) return '#b45309'
+  return '#78350f'
+}
+
+function OffTargetChart({ hoveredId, onHover }: {
+  hoveredId: string | null
+  onHover: (id: string | null) => void
+}) {
+  const LABEL_W = 48
+  const VAL_W   = 38
+  const BAR_H   = 15
+  const GAP     = 4
+  const CHART_W = 360 - LABEL_W - VAL_W  // ~274px
+
+  const threshX = (OT_THRESHOLD / OT_CHART_MAX) * CHART_W
+
+  return (
+    <div style={{ position: 'relative' }}>
+      {/* Threshold label */}
+      <div style={{
+        position: 'absolute', top: -16,
+        left: LABEL_W + 6 + threshX - 1,
+        fontSize: 7, fontFamily: 'monospace', color: '#ef444499',
+        whiteSpace: 'nowrap',
+      }}>
+        2% fail threshold
+      </div>
+
+      <div style={{ display: 'flex', flexDirection: 'column', gap: GAP }}>
+        {PHASE5_OFFTARGET_DATA.map((site) => {
+          const barW = (site.editingPct / OT_CHART_MAX) * CHART_W
+          const isHov = hoveredId === site.id
+          const color = mmColor(site.mismatches)
+          return (
+            <div
+              key={site.id}
+              style={{ display: 'flex', alignItems: 'center', gap: 6, cursor: 'default' }}
+              onMouseEnter={() => onHover(site.id)}
+              onMouseLeave={() => onHover(null)}
+            >
+              <div style={{
+                width: LABEL_W, fontSize: 9, fontFamily: 'monospace', textAlign: 'right', flexShrink: 0,
+                color: isHov ? AMBER : '#475569',
+              }}>
+                {site.id}
+              </div>
+
+              <div style={{
+                width: CHART_W, height: BAR_H, background: '#0d1a2a', borderRadius: 2,
+                position: 'relative', flexShrink: 0,
+                border: isHov ? '1px solid #1e3050' : '1px solid transparent',
+              }}>
+                <div style={{
+                  width: barW, height: '100%', borderRadius: 2,
+                  background: `linear-gradient(90deg, ${color}, ${color}88)`,
+                  boxShadow: isHov ? `0 0 6px ${color}66` : 'none',
+                  transition: 'width 0.4s ease',
+                }} />
+                {/* Fail threshold line */}
+                <div style={{
+                  position: 'absolute', left: threshX, top: 0, bottom: 0,
+                  width: 1, background: '#ef444455',
+                }} />
+                {/* Pass tick */}
+                <div style={{
+                  position: 'absolute', right: 4, top: '50%',
+                  transform: 'translateY(-50%)',
+                  fontSize: 7, color: '#10b98166',
+                }}>
+                  ✓
+                </div>
+              </div>
+
+              <div style={{
+                width: VAL_W, fontSize: 9, fontFamily: 'monospace', textAlign: 'right', flexShrink: 0,
+                color: '#475569',
+              }}>
+                {site.editingPct.toFixed(1)}%
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+function Phase5Content({ onConfirm }: { onConfirm: (val: string) => void }) {
+  const [hoveredId, setHoveredId] = useState<string | null>(null)
+  const hovered: OffTargetSite = PHASE5_OFFTARGET_DATA.find((s) => s.id === hoveredId) ?? PHASE5_OFFTARGET_DATA[0]
+
+  const maxEdit  = Math.max(...PHASE5_OFFTARGET_DATA.map((s) => s.editingPct))
+  const mmCounts = [2, 3, 4, 5].map((mm) => ({
+    mm,
+    count: PHASE5_OFFTARGET_DATA.filter((s) => s.mismatches === mm).length,
+  })).filter((x) => x.count > 0)
+
+  return (
+    <>
+      {/* ── Off-target chart ── */}
+      <div style={{ padding: '28px 22px 16px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Editing % at 10 Predicted Off-Target Loci · AMP-seq (CRISPResso2)</SectionLabel>
+        <OffTargetChart hoveredId={hoveredId} onHover={setHoveredId} />
+      </div>
+
+      {/* ── Hovered site detail ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          <span style={{ fontSize: 13, fontWeight: 700, color: AMBER }}>{hovered.id}</span>
+          <span style={{
+            fontSize: 8, fontFamily: 'monospace', letterSpacing: '0.1em',
+            color: '#10b981', background: 'rgba(16,185,129,0.1)',
+            border: '1px solid rgba(16,185,129,0.3)', borderRadius: 3, padding: '2px 6px',
+          }}>
+            {hovered.editingPct.toFixed(1)}% — PASS
+          </span>
+          <span style={{
+            fontSize: 8, fontFamily: 'monospace', color: mmColor(hovered.mismatches),
+            background: 'rgba(255,255,255,0.03)', border: '1px solid #1a2940',
+            borderRadius: 3, padding: '2px 6px',
+          }}>
+            {hovered.mismatches}mm
+          </span>
+        </div>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          {[
+            ['Chromosome',   hovered.chr],
+            ['Position',     hovered.position],
+            ['Gene Context', hovered.geneContext],
+            ['Mismatches',   `${hovered.mismatches} vs. G7`],
+          ].map(([k, v]) => (
+            <div key={k} style={{ background: '#060e1a', border: '1px solid #0d1a2a', borderRadius: 5, padding: '7px 10px' }}>
+              <div style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155', marginBottom: 2 }}>{k}</div>
+              <div style={{ fontSize: 9, color: '#64748b', lineHeight: 1.4 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Pass criteria ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Safety Criteria Assessment</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {[
+            { criterion: 'All 10 loci <2% editing',              value: `Max observed: ${maxEdit.toFixed(1)}% (OT-1)`, pass: true },
+            { criterion: 'No exonic off-target hits',             value: 'All hits intronic or intergenic',              pass: true },
+            { criterion: '2-mismatch sites screened (OT-1, 2)',  value: `OT-1: 0.8%, OT-2: 0.4%`,                      pass: true },
+            { criterion: 'On-target editing confirmed ≥80%',      value: '84% at PCSK9 exon 7 (Phase 2)',               pass: true },
+          ].map(({ criterion, value, pass }) => (
+            <div key={criterion} style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: pass ? 'rgba(16,185,129,0.04)' : 'rgba(239,68,68,0.04)',
+              border: `1px solid ${pass ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`,
+              borderRadius: 5, padding: '7px 10px',
+            }}>
+              <div style={{
+                width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+                background: pass ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 9, color: pass ? '#10b981' : '#ef4444',
+              }}>
+                {pass ? '✓' : '✗'}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 9, color: '#64748b' }}>{criterion}</div>
+                <div style={{ fontSize: 9, fontFamily: 'monospace', color: pass ? '#10b981' : '#ef4444', marginTop: 1 }}>
+                  {value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Mismatch legend ── */}
+      <div style={{ padding: '12px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          {mmCounts.map(({ mm, count }) => (
+            <div key={mm} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: mmColor(mm) }} />
+              <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155' }}>
+                {mm}mm ({count} {count === 1 ? 'site' : 'sites'})
+              </span>
+            </div>
+          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+            <div style={{ width: 10, height: 1, background: '#ef4444', opacity: 0.5 }} />
+            <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155' }}>2% fail limit</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Interpretation ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Safety Summary</SectionLabel>
+        <div style={{
+          fontSize: 10, color: '#64748b', lineHeight: 1.6,
+          background: 'rgba(245,158,11,0.04)', border: '1px solid rgba(245,158,11,0.12)',
+          borderRadius: 6, padding: '10px 12px',
+        }}>
+          <span style={{ color: AMBER, fontWeight: 600 }}>G7</span> demonstrates excellent specificity across all
+          10 predicted off-target loci. The highest off-target signal is{' '}
+          <span style={{ color: AMBER }}>0.8% at OT-1</span> (CELSR2 intron 8, 2-mismatch), well
+          below the 2% fail threshold. All hits are intronic or intergenic — no exonic disruption risk.
+          The mismatch profile (≥2 mismatches, no seed-region hits) supports the selectivity.
+          G7-F3-LNP is <span style={{ color: '#10b981' }}>cleared for preclinical IND-enabling studies</span>.
+        </div>
+      </div>
+
+      {/* ── CTA ── */}
+      <div style={{ padding: '18px 22px', flexShrink: 0 }}>
+        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#334155', marginBottom: 12 }}>
+          All 10 off-target loci pass safety criteria — program complete
+        </div>
+        <CtaButton color={AMBER} onClick={() => onConfirm('G7-SAFE')}>
+          Confirm Safety Screen — G7 Cleared for IND Studies →
+        </CtaButton>
+      </div>
+    </>
+  )
+}
+
 // ── Shared micro-components ───────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -1010,6 +1241,16 @@ const PHASE_META = {
       { text: '3.2× LDL uptake rescued',         color: '#34d399' },
     ],
   },
+  'safety-screen': {
+    label: 'Phase 5 Complete — Off-Target Safety Screen',
+    title: 'AMP-seq Off-Target Analysis',
+    color: '#f59e0b',
+    stats: [
+      { text: '10 loci screened',            color: '#334155' },
+      { text: 'All sites <1% editing',        color: '#f59e0b' },
+      { text: 'G7 cleared for IND studies',  color: '#fbbf24' },
+    ],
+  },
 } as const
 
 // ── Main drawer ───────────────────────────────────────────────────────────────
@@ -1086,6 +1327,7 @@ export default function ResultsDrawer() {
       {resultsPhaseId === 'guide-screen'          && <Phase2Content onConfirm={handleConfirm} />}
       {resultsPhaseId === 'delivery-opt'          && <Phase3Content onConfirm={handleConfirm} />}
       {resultsPhaseId === 'functional-validation' && <Phase4Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'safety-screen'          && <Phase5Content onConfirm={handleConfirm} />}
     </div>
   )
 }
