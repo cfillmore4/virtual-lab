@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLabStore } from '../../store/labStore'
-import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, PHASE3_LNP_DATA, LNP_FORMULATION_DETAILS, PHASE4_WESTERN, PHASE4_LDL_UPTAKE } from '../../types/program'
+import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, LNP_FORMULATION_DETAILS, PHASE4_WESTERN, PHASE4_LDL_UPTAKE } from '../../types/program'
 import type { DEGene, GuideResult } from '../../types/program'
 
 // ── Volcano plot (Phase 1) ────────────────────────────────────────────────────
@@ -826,10 +826,6 @@ function Phase4Content({ onConfirm }: { onConfirm: (val: string) => void }) {
 
   const hovered    = hoveredLane !== null ? PHASE4_WESTERN[hoveredLane] : PHASE4_WESTERN[3]
   const knockdown  = 100 - hovered.pcsk9Intensity
-  const ldlForHov  = PHASE4_LDL_UPTAKE.find(p => p.condition === (hovered.isWinner ? 'F3 1.0 mg/kg' : null))
-
-  const passCriteria = hovered.isWinner
-
   return (
     <>
       {/* ── Western blot ── */}
