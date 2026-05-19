@@ -245,7 +245,7 @@ export default function ProgramPanel() {
                   <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#334155', marginBottom: 8, textAlign: 'right' }}>
                     96-Well Plate Map
                   </div>
-                  <PlateMap samples={selectedPhase.plateSamples} accentColor={selectedPhase.accentColor} />
+                  <PlateMap samples={selectedPhase.plateSamples} />
                   {/* Legend */}
                   <div style={{ display: 'flex', gap: 10, justifyContent: 'flex-end', marginTop: 6 }}>
                     {selectedPhase.plateSamples.map((s) => (
@@ -292,7 +292,7 @@ export default function ProgramPanel() {
 
 // ── Mini plate map ────────────────────────────────────────────────────────────
 
-function PlateMap({ samples, accentColor }: { samples: { cols: number[]; color: string; group: string }[]; accentColor: string }) {
+function PlateMap({ samples }: { samples: { cols: number[]; color: string; group: string }[] }) {
   const colColorMap: Record<number, string> = {}
   for (const s of samples) {
     for (const col of s.cols) colColorMap[col] = s.color

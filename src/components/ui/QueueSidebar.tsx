@@ -12,7 +12,6 @@ function timeAgo(ts: number): string {
 
 function ExperimentRow({ exp }: { exp: ExperimentRequest }) {
   const cfg = EXPERIMENT_CONFIGS[exp.type]
-  const isPending  = exp.status === 'pending'
   const isRunning  = exp.status === 'running'
   const isComplete = exp.status === 'complete'
 

@@ -141,7 +141,7 @@ export const useLabStore = create<LabStore>((set, get) => ({
   assignTask: (scientistId, taskType) => {
     const ws  = TASK_WORKSTATIONS[taskType]
     const def = SCIENTIST_TASK_DEFS[taskType]
-    const task: ScientistTask = { type: taskType, label: def.label, accentColor: def.accentColor, ...ws }
+    const task: ScientistTask = { type: taskType, label: def.label, accentColor: def.accentColor, workstationX: ws.x, workstationZ: ws.z, facingY: ws.facingY }
     set((s) => ({
       scientists: s.scientists.map((sc) =>
         sc.id === scientistId ? { ...sc, task } : sc
@@ -170,7 +170,6 @@ export const useLabStore = create<LabStore>((set, get) => ({
     const phase = program.phases.find((p) => p.id === phaseId)
     if (!phase || phase.status !== 'unlocked') return
 
-    const cfg = EXPERIMENT_CONFIGS[phase.experimentType]
     const id = makeId()
     const newRequest: ExperimentRequest = {
       id,

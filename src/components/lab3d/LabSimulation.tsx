@@ -77,7 +77,7 @@ function SceneInner() {
       <IntroCam />
 
       {/* Fog — softens exterior beyond walls, eliminates hard background cutoff */}
-      <fog attach="fog" color="#5a6e7a" near={52} far={88} />
+      <fog attach="fog" args={['#5a6e7a', 52, 88]} />
 
       {/* ── Lighting ─────────────────────────────────────────────────────── */}
 
