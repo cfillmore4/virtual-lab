@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { ExperimentType } from '../types/experiment'
 import { EXPERIMENT_CONFIGS } from '../types/experiment'
 import type { ProgramPhaseId, Program, PhaseResults } from '../types/program'
-import { createPCSK9Program, PHASE1_GENES, PHASE2_GUIDES, PHASE3_LNP_DATA } from '../types/program'
+import { createPCSK9Program, PHASE1_GENES, PHASE2_GUIDES, PHASE3_LNP_DATA, PHASE4_WESTERN, PHASE4_LDL_UPTAKE } from '../types/program'
 
 export type RobotId = 'A' | 'B' | 'C'
 export type ScientistId = 'A' | 'B' | 'C'
@@ -206,6 +206,8 @@ export const useLabStore = create<LabStore>((set, get) => ({
         results = { kind: 'guide-screen', guides: PHASE2_GUIDES, selectedGuide: selectedValue }
       } else if (phaseId === 'delivery-opt') {
         results = { kind: 'delivery-opt', conditions: PHASE3_LNP_DATA, selectedFormulation: selectedValue }
+      } else if (phaseId === 'functional-validation') {
+        results = { kind: 'functional-validation', westernBands: PHASE4_WESTERN, ldlUptake: PHASE4_LDL_UPTAKE, selectedCondition: selectedValue }
       }
 
       // Map of which phase unlocks after each phase completes
@@ -226,9 +228,10 @@ export const useLabStore = create<LabStore>((set, get) => ({
       return {
         program: {
           ...s.program,
-          targetGene:          phaseId === 'target-validation' ? selectedValue : s.program.targetGene,
-          selectedGuide:       phaseId === 'guide-screen'      ? selectedValue : s.program.selectedGuide,
-          selectedFormulation: phaseId === 'delivery-opt'      ? selectedValue : s.program.selectedFormulation,
+          targetGene:          phaseId === 'target-validation'    ? selectedValue : s.program.targetGene,
+          selectedGuide:       phaseId === 'guide-screen'        ? selectedValue : s.program.selectedGuide,
+          selectedFormulation: phaseId === 'delivery-opt'        ? selectedValue : s.program.selectedFormulation,
+          confirmedEfficacy:   phaseId === 'functional-validation' ? true : s.program.confirmedEfficacy,
           phases: updatedPhases,
         },
         resultsPhaseId: null,

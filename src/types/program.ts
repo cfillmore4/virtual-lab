@@ -64,7 +64,7 @@ export interface Phase3Results {
   selectedFormulation: string | null
 }
 
-export type PhaseResults = Phase1Results | Phase2Results | Phase3Results
+export type PhaseResults = Phase1Results | Phase2Results | Phase3Results | Phase4Results
 
 // ── Phase & Program types ─────────────────────────────────────────────────────
 
@@ -88,6 +88,7 @@ export interface Program {
   targetGene: string | null
   selectedGuide: string | null
   selectedFormulation: string | null
+  confirmedEfficacy: boolean | null
   phases: ProgramPhase[]
 }
 
@@ -179,6 +180,27 @@ export const PHASE2_GUIDES: GuideResult[] = [
   { id: 'Neg2', sequence: 'GTCGATAACGAGCGCGAATG', efficiency:  1, isControl: true,  isWinner: false },
 ]
 
+// ── Phase 4 results ───────────────────────────────────────────────────────────
+
+export interface WesternBand {
+  lane: string       // label, e.g. "Untreated"
+  pcsk9Intensity: number  // 0–100, relative to untreated
+  isWinner: boolean
+}
+
+export interface LDLUptakePoint {
+  condition: string
+  foldChange: number  // vs. untreated = 1.0
+  isWinner: boolean
+}
+
+export interface Phase4Results {
+  kind: 'functional-validation'
+  westernBands: WesternBand[]
+  ldlUptake: LDLUptakePoint[]
+  selectedCondition: string | null
+}
+
 // ── Phase 3 LNP data ──────────────────────────────────────────────────────────
 // Factorial screen: 4 ionizable lipid formulations × 3 doses.
 // Readout: PCSK9 protein knockdown (%) by ELISA at 72 h post-dose.
@@ -214,6 +236,28 @@ export const PHASE3_LNP_DATA: LNPCondition[] = [
   { formulation: 'F4', dose: 1.0, knockdown: 78, isWinner: false },
 ]
 
+// ── Phase 4 assay data ────────────────────────────────────────────────────────
+// Western blot: 5 lanes quantified by densitometry (ImageJ).
+// PCSK9 band intensity normalised to GAPDH, expressed as % of untreated.
+// LDL-Bodipy uptake: fluorescent LDL internalisation fold-change vs. untreated.
+// F3-LNP 1.0 mg/kg achieves 87% protein knockdown and 3.2x LDL uptake.
+
+export const PHASE4_WESTERN: WesternBand[] = [
+  { lane: 'Untreated',        pcsk9Intensity: 100, isWinner: false },
+  { lane: 'Vehicle (PBS)',    pcsk9Intensity:  97, isWinner: false },
+  { lane: 'F3 0.3 mg/kg',    pcsk9Intensity:  31, isWinner: false },
+  { lane: 'F3 1.0 mg/kg',    pcsk9Intensity:  13, isWinner: true  },
+  { lane: 'siRNA ctrl',       pcsk9Intensity:   8, isWinner: false },
+]
+
+export const PHASE4_LDL_UPTAKE: LDLUptakePoint[] = [
+  { condition: 'Untreated',     foldChange: 1.0, isWinner: false },
+  { condition: 'Vehicle (PBS)', foldChange: 1.0, isWinner: false },
+  { condition: 'F3 0.3 mg/kg', foldChange: 2.1, isWinner: false },
+  { condition: 'F3 1.0 mg/kg', foldChange: 3.2, isWinner: true  },
+  { condition: 'siRNA ctrl',    foldChange: 3.5, isWinner: false },
+]
+
 // ── Program factory ───────────────────────────────────────────────────────────
 
 export function createPCSK9Program(): Program {
@@ -224,6 +268,7 @@ export function createPCSK9Program(): Program {
     targetGene: null,
     selectedGuide: null,
     selectedFormulation: null,
+    confirmedEfficacy: null,
     phases: [
       {
         id: 'target-validation',
@@ -291,11 +336,18 @@ export function createPCSK9Program(): Program {
         id: 'functional-validation',
         phaseNumber: 4,
         name: 'Functional Validation',
-        objective: 'Confirm PCSK9 protein knockdown and rescue of LDL receptor-mediated uptake',
-        detail: 'Western blot for PCSK9 protein level + LDL-Bodipy fluorescent uptake assay in edited vs. unedited cells. Target: >80% protein reduction, normalized LDL uptake.',
+        objective: 'Confirm PCSK9 protein knockdown and rescue of LDL receptor-mediated uptake in hepatocytes',
+        detail: 'Western blot quantifies PCSK9 protein reduction vs. loading control (GAPDH). LDL-Bodipy fluorescent uptake assay measures LDLR rescue. Pass criteria: ≥80% protein knockdown, ≥2.5x LDL uptake vs. untreated.',
         accentColor: '#10b981',
         experimentType: 'massspec',
-        plateSamples: [],
+        plateSamples: [
+          { cols: [1, 2],   label: 'Untreated',      color: '#334155', group: 'untreated', description: 'Naive HepG2 cells — PCSK9 baseline' },
+          { cols: [3, 4],   label: 'Vehicle (PBS)',   color: '#475569', group: 'vehicle',   description: 'PBS injection, no LNP — procedural control' },
+          { cols: [5, 6],   label: 'F3 0.3 mg/kg',   color: '#059669', group: 'low-dose',  description: 'F3-LNP sub-therapeutic dose' },
+          { cols: [7, 8],   label: 'F3 1.0 mg/kg',   color: '#10b981', group: 'high-dose', description: 'F3-LNP lead dose — primary test article' },
+          { cols: [9, 10],  label: 'siRNA ctrl',      color: '#34d399', group: 'posctrl',   description: 'Validated PCSK9 siRNA — positive knockdown control' },
+          { cols: [11, 12], label: 'Mock transfect',  color: '#1e293b', group: 'mock',      description: 'Transfection reagent only — cytotoxicity control' },
+        ],
         status: 'locked',
       },
       {
