@@ -277,7 +277,7 @@ export default function LabSimulation() {
     <div style={{ position: 'absolute', inset: 0, background: '#5a6e7a' }}>
       <Canvas
         shadows
-        style={{ width: '100%', height: '100%' }}
+        style={{ position: 'absolute', inset: 0, zIndex: 0 }}
         camera={{ position: [26, 22, 30], fov: 46 }}
         gl={{
           antialias: true,
