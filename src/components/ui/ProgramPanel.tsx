@@ -109,6 +109,11 @@ export default function ProgramPanel() {
                   FORM: {program.selectedFormulation}
                 </span>
               )}
+              {program?.safetyCleared && (
+                <span style={{ color: '#f59e0b', marginLeft: 10 }}>
+                  ✓ SAFETY
+                </span>
+              )}
             </div>
           </div>
           <button
