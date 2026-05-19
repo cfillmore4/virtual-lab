@@ -431,7 +431,7 @@ export default function LabTechnician({
 
       {/* Task badge — floats above head when a task is assigned */}
       {task && (
-        <Html center position={[0, 2.55, 0]} distanceFactor={14} zIndexRange={[0, 10]}>
+        <Html center position={[0, 2.55, 0]} distanceFactor={14} zIndexRange={[0, 0]}>
           <div style={{
             background: `${task.accentColor}18`,
             border: `1px solid ${task.accentColor}90`,

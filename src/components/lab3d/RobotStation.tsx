@@ -306,7 +306,7 @@ export default function RobotStation({
       />
 
       {/* Floating status chip above robot */}
-      <Html position={[0, 5.2, 0]} center distanceFactor={18} occlude={false}>
+      <Html position={[0, 5.2, 0]} center distanceFactor={18} occlude={false} zIndexRange={[0, 0]}>
         <div style={{
           fontFamily: 'monospace',
           fontSize: 11,
