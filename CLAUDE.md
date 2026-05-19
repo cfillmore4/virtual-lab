@@ -1,5 +1,16 @@
 # Virtual Lab — Project Brief
 
+## Project Location
+The active project is `virtual-lab` (NOT `clinical_trail_predictions`). Always verify you are in the virtual-lab directory before reading or editing files.
+
+## Git Workflow
+- Always check current branch with `git branch --show-current` before committing.
+- Feature work goes on feature branches; only merge to master when explicitly requested.
+- After edits, run `npm run build` (or `tsc --noEmit`) to catch TypeScript errors (especially unused variables) before committing.
+
+## Editing Conventions
+The project's linter/formatter may revert edits on save. After applying edits, re-read the file to confirm changes persisted before declaring done.
+
 A portfolio/interview demo: a dark-themed web app where users configure a 96-well plate and watch a 3D-animated Hamilton liquid handler execute the experiment, then receive a mock report.
 
 ## Stack
