@@ -33,7 +33,23 @@ export interface Phase1Results {
   selectedTarget: string | null
 }
 
-export type PhaseResults = Phase1Results
+// ── Phase 2 results ───────────────────────────────────────────────────────────
+
+export interface GuideResult {
+  id: string        // G1–G22, Neg1, Neg2
+  sequence: string  // 20nt spacer sequence
+  efficiency: number // % indels at cut site (0–100)
+  isControl: boolean
+  isWinner: boolean
+}
+
+export interface Phase2Results {
+  kind: 'guide-screen'
+  guides: GuideResult[]
+  selectedGuide: string | null
+}
+
+export type PhaseResults = Phase1Results | Phase2Results
 
 // ── Phase & Program types ─────────────────────────────────────────────────────
 
@@ -55,6 +71,7 @@ export interface Program {
   name: string
   diseaseArea: string
   targetGene: string | null
+  selectedGuide: string | null
   phases: ProgramPhase[]
 }
 
@@ -114,6 +131,38 @@ export const PHASE1_BACKGROUND: { log2FC: number; negLog10P: number }[] = [
   { log2FC: -4.2, negLog10P: 4.8 }, { log2FC:  0.0, negLog10P: 3.2 },
 ]
 
+// ── Phase 2 guide data ────────────────────────────────────────────────────────
+// 22 SpCas9 guides targeting PCSK9 exon 7 + 2 non-targeting negative controls.
+// Efficiencies are plausible AMP-seq CRISPResso2 output values.
+// G7 is the clear winner at 84% — carries forward to Phase 3.
+
+export const PHASE2_GUIDES: GuideResult[] = [
+  { id: 'G1',   sequence: 'ACGTCAGCTGAATCGGCTAA', efficiency: 45, isControl: false, isWinner: false },
+  { id: 'G2',   sequence: 'TGCAATGGCTAGCGTACGTA', efficiency: 32, isControl: false, isWinner: false },
+  { id: 'G3',   sequence: 'CGAGTTCAAGCTGGACATCG', efficiency: 71, isControl: false, isWinner: false },
+  { id: 'G4',   sequence: 'AATCGCTAGCGATCGATCGA', efficiency: 28, isControl: false, isWinner: false },
+  { id: 'G5',   sequence: 'GCTAGCGATCAGTTGCATCG', efficiency: 52, isControl: false, isWinner: false },
+  { id: 'G6',   sequence: 'TGATCGATCAGTACGATCGA', efficiency: 39, isControl: false, isWinner: false },
+  { id: 'G7',   sequence: 'TGGACTCAGCGGCTGATCAA', efficiency: 84, isControl: false, isWinner: true  },
+  { id: 'G8',   sequence: 'GCAGCTGATCAGTCGATCGA', efficiency: 61, isControl: false, isWinner: false },
+  { id: 'G9',   sequence: 'ATCGATCAGTAGCGATCGAT', efficiency: 47, isControl: false, isWinner: false },
+  { id: 'G10',  sequence: 'CGATCAGTAGCGATCGATCA', efficiency: 23, isControl: false, isWinner: false },
+  { id: 'G11',  sequence: 'GATCAGTAGCGATCGATCAT', efficiency: 55, isControl: false, isWinner: false },
+  { id: 'G12',  sequence: 'ATCAGTAGCGATCGATCATG', efficiency: 76, isControl: false, isWinner: false },
+  { id: 'G13',  sequence: 'TCAGTAGCGATCGATCATGC', efficiency: 38, isControl: false, isWinner: false },
+  { id: 'G14',  sequence: 'CAGTAGCGATCGATCATGCA', efficiency: 19, isControl: false, isWinner: false },
+  { id: 'G15',  sequence: 'AGTAGCGATCGATCATGCAT', efficiency: 63, isControl: false, isWinner: false },
+  { id: 'G16',  sequence: 'GTAGCGATCGATCATGCATC', efficiency: 44, isControl: false, isWinner: false },
+  { id: 'G17',  sequence: 'TAGCGATCGATCATGCATCG', efficiency: 57, isControl: false, isWinner: false },
+  { id: 'G18',  sequence: 'AGCGATCGATCATGCATCGA', efficiency: 68, isControl: false, isWinner: false },
+  { id: 'G19',  sequence: 'GCGATCGATCATGCATCGAT', efficiency: 29, isControl: false, isWinner: false },
+  { id: 'G20',  sequence: 'CGATCGATCATGCATCGATC', efficiency: 41, isControl: false, isWinner: false },
+  { id: 'G21',  sequence: 'GATCGATCATGCATCGATCA', efficiency: 35, isControl: false, isWinner: false },
+  { id: 'G22',  sequence: 'ATCGATCATGCATCGATCAT', efficiency: 53, isControl: false, isWinner: false },
+  { id: 'Neg1', sequence: 'ACGGAGGCTAAGCGTCGCAA', efficiency:  2, isControl: true,  isWinner: false },
+  { id: 'Neg2', sequence: 'GTCGATAACGAGCGCGAATG', efficiency:  1, isControl: true,  isWinner: false },
+]
+
 // ── Program factory ───────────────────────────────────────────────────────────
 
 export function createPCSK9Program(): Program {
@@ -122,6 +171,7 @@ export function createPCSK9Program(): Program {
     name: 'PCSK9 Gene Editing Program',
     diseaseArea: 'Cardiovascular — Hypercholesterolemia',
     targetGene: null,
+    selectedGuide: null,
     phases: [
       {
         id: 'target-validation',

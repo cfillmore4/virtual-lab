@@ -498,6 +498,102 @@ export default function LabEnvironment() {
       ))}
 
       {/* ═══════════════════════════════════════════════════════════════════
+          HAZARDOUS WASTE STATION — front-right corner
+      ══════════════════════════════════════════════════════════════════════ */}
+
+      {/* Main 55-gal drum */}
+      <group position={[34, -0.62 + 0.55, 11]}>
+        {/* Drum body — safety yellow */}
+        <mesh castShadow>
+          <cylinderGeometry args={[0.42, 0.42, 1.1, 16]} />
+          <meshStandardMaterial color="#f59e0b" roughness={0.55} metalness={0.08} />
+        </mesh>
+        {/* Lid rim */}
+        <mesh position={[0, 0.58, 0]}>
+          <cylinderGeometry args={[0.46, 0.44, 0.08, 16]} />
+          <meshStandardMaterial color="#d97706" roughness={0.5} metalness={0.18} />
+        </mesh>
+        {/* Lid top */}
+        <mesh position={[0, 0.63, 0]}>
+          <cylinderGeometry args={[0.43, 0.43, 0.04, 16]} />
+          <meshStandardMaterial color="#d97706" roughness={0.5} metalness={0.18} />
+        </mesh>
+        {/* Black warning band */}
+        <mesh position={[0, 0.08, 0]}>
+          <cylinderGeometry args={[0.425, 0.425, 0.20, 16]} />
+          <meshStandardMaterial color="#111827" roughness={0.7} />
+        </mesh>
+        {/* Red biohazard label on front face */}
+        <mesh position={[0, 0.32, 0.425]}>
+          <planeGeometry args={[0.38, 0.22]} />
+          <meshStandardMaterial color="#dc2626" roughness={0.75} emissive="#dc2626" emissiveIntensity={0.25} />
+        </mesh>
+        {/* Lid handle (bale) */}
+        <mesh position={[0, 0.72, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <torusGeometry args={[0.14, 0.022, 6, 12, Math.PI]} />
+          <meshStandardMaterial color="#6b7280" metalness={0.8} roughness={0.2} />
+        </mesh>
+        {/* Drum ribs (structural rings) */}
+        {[-0.2, 0.38].map((y, i) => (
+          <mesh key={i} position={[0, y, 0]}>
+            <torusGeometry args={[0.425, 0.018, 6, 24]} />
+            <meshStandardMaterial color="#d97706" metalness={0.2} roughness={0.6} />
+          </mesh>
+        ))}
+      </group>
+
+      {/* Second smaller drum — tilted slightly, contents slightly different */}
+      <group position={[35.4, -0.62 + 0.38, 10.2]} rotation={[0, 0.8, 0]}>
+        <mesh castShadow>
+          <cylinderGeometry args={[0.30, 0.30, 0.76, 14]} />
+          <meshStandardMaterial color="#f59e0b" roughness={0.6} metalness={0.06} />
+        </mesh>
+        <mesh position={[0, 0.41, 0]}>
+          <cylinderGeometry args={[0.33, 0.31, 0.06, 14]} />
+          <meshStandardMaterial color="#d97706" roughness={0.5} metalness={0.14} />
+        </mesh>
+        {/* Warning stripe */}
+        <mesh position={[0, 0.04, 0]}>
+          <cylinderGeometry args={[0.305, 0.305, 0.14, 14]} />
+          <meshStandardMaterial color="#111827" roughness={0.7} />
+        </mesh>
+      </group>
+
+      {/* Red sharps / biohazard box on the floor beside drums */}
+      <group position={[33.2, -0.62 + 0.22, 10.6]}>
+        <mesh castShadow>
+          <boxGeometry args={[0.52, 0.44, 0.38]} />
+          <meshStandardMaterial color="#dc2626" roughness={0.7} />
+        </mesh>
+        {/* Lid */}
+        <mesh position={[0, 0.24, 0]}>
+          <boxGeometry args={[0.54, 0.06, 0.40]} />
+          <meshStandardMaterial color="#991b1b" roughness={0.6} />
+        </mesh>
+        {/* White label panel */}
+        <mesh position={[0, 0.04, 0.198]}>
+          <planeGeometry args={[0.30, 0.20]} />
+          <meshStandardMaterial color="#fef2f2" roughness={0.9} />
+        </mesh>
+      </group>
+
+      {/* Floor spill mat — non-slip absorbent pad under the waste station */}
+      <mesh position={[34.2, -0.615, 10.6]} rotation={[-Math.PI / 2, 0, 0]}>
+        <planeGeometry args={[3.5, 2.2]} />
+        <meshStandardMaterial color="#78350f" roughness={0.98} opacity={0.6} transparent />
+      </mesh>
+
+      {/* Caution floor tape — yellow diagonal stripes around the zone */}
+      <mesh position={[34.2, -0.610, 10.6]} rotation={[-Math.PI / 2, 0, Math.PI / 4]}>
+        <planeGeometry args={[3.8, 0.18]} />
+        <meshStandardMaterial color="#f59e0b" opacity={0.55} transparent />
+      </mesh>
+      <mesh position={[34.2, -0.610, 10.6]} rotation={[-Math.PI / 2, 0, -Math.PI / 4]}>
+        <planeGeometry args={[3.8, 0.18]} />
+        <meshStandardMaterial color="#f59e0b" opacity={0.55} transparent />
+      </mesh>
+
+      {/* ═══════════════════════════════════════════════════════════════════
           FLOOR SAFETY MARKINGS
       ══════════════════════════════════════════════════════════════════════ */}
       {/* Yellow robot-zone perimeter line */}
