@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { ExperimentType } from '../types/experiment'
 import { EXPERIMENT_CONFIGS } from '../types/experiment'
 import type { ProgramPhaseId, Program, PhaseResults } from '../types/program'
-import { createPCSK9Program, PHASE1_GENES } from '../types/program'
+import { createPCSK9Program, PHASE1_GENES, PHASE2_GUIDES } from '../types/program'
 
 export type RobotId = 'A' | 'B' | 'C'
 export type ScientistId = 'A' | 'B' | 'C'
@@ -202,6 +202,8 @@ export const useLabStore = create<LabStore>((set, get) => ({
       let results: PhaseResults | undefined
       if (phaseId === 'target-validation') {
         results = { kind: 'target-validation', genes: PHASE1_GENES, selectedTarget: selectedValue }
+      } else if (phaseId === 'guide-screen') {
+        results = { kind: 'guide-screen', guides: PHASE2_GUIDES, selectedGuide: selectedValue }
       }
 
       // Map of which phase unlocks after each phase completes
@@ -222,7 +224,8 @@ export const useLabStore = create<LabStore>((set, get) => ({
       return {
         program: {
           ...s.program,
-          targetGene: phaseId === 'target-validation' ? selectedValue : s.program.targetGene,
+          targetGene:    phaseId === 'target-validation' ? selectedValue : s.program.targetGene,
+          selectedGuide: phaseId === 'guide-screen'      ? selectedValue : s.program.selectedGuide,
           phases: updatedPhases,
         },
         resultsPhaseId: null,

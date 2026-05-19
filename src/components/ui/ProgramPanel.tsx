@@ -97,6 +97,11 @@ export default function ProgramPanel() {
                   TARGET: {program.targetGene}
                 </span>
               )}
+              {program?.selectedGuide && (
+                <span style={{ color: '#00d4ff', marginLeft: 10 }}>
+                  GUIDE: {program.selectedGuide}
+                </span>
+              )}
             </div>
           </div>
           <button
