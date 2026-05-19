@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import type { ExperimentType } from '../types/experiment'
 import { EXPERIMENT_CONFIGS } from '../types/experiment'
 import type { ProgramPhaseId, Program, PhaseResults } from '../types/program'
-import { createPCSK9Program, PHASE1_GENES, PHASE2_GUIDES } from '../types/program'
+import { createPCSK9Program, PHASE1_GENES, PHASE2_GUIDES, PHASE3_LNP_DATA } from '../types/program'
 
 export type RobotId = 'A' | 'B' | 'C'
 export type ScientistId = 'A' | 'B' | 'C'
@@ -204,6 +204,8 @@ export const useLabStore = create<LabStore>((set, get) => ({
         results = { kind: 'target-validation', genes: PHASE1_GENES, selectedTarget: selectedValue }
       } else if (phaseId === 'guide-screen') {
         results = { kind: 'guide-screen', guides: PHASE2_GUIDES, selectedGuide: selectedValue }
+      } else if (phaseId === 'delivery-opt') {
+        results = { kind: 'delivery-opt', conditions: PHASE3_LNP_DATA, selectedFormulation: selectedValue }
       }
 
       // Map of which phase unlocks after each phase completes
@@ -224,8 +226,9 @@ export const useLabStore = create<LabStore>((set, get) => ({
       return {
         program: {
           ...s.program,
-          targetGene:    phaseId === 'target-validation' ? selectedValue : s.program.targetGene,
-          selectedGuide: phaseId === 'guide-screen'      ? selectedValue : s.program.selectedGuide,
+          targetGene:          phaseId === 'target-validation' ? selectedValue : s.program.targetGene,
+          selectedGuide:       phaseId === 'guide-screen'      ? selectedValue : s.program.selectedGuide,
+          selectedFormulation: phaseId === 'delivery-opt'      ? selectedValue : s.program.selectedFormulation,
           phases: updatedPhases,
         },
         resultsPhaseId: null,

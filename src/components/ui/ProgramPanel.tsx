@@ -102,6 +102,11 @@ export default function ProgramPanel() {
                   GUIDE: {program.selectedGuide}
                 </span>
               )}
+              {program?.selectedFormulation && (
+                <span style={{ color: '#a855f7', marginLeft: 10 }}>
+                  FORM: {program.selectedFormulation}
+                </span>
+              )}
             </div>
           </div>
           <button

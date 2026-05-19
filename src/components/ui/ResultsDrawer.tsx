@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLabStore } from '../../store/labStore'
-import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES } from '../../types/program'
+import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, PHASE3_LNP_DATA, LNP_FORMULATION_DETAILS } from '../../types/program'
 import type { DEGene, GuideResult } from '../../types/program'
 
 // ── Volcano plot (Phase 1) ────────────────────────────────────────────────────
@@ -410,6 +410,205 @@ function Phase2Content({ onConfirm }: { onConfirm: (val: string) => void }) {
   )
 }
 
+// ── Phase 3 heat map ─────────────────────────────────────────────────────────
+
+const FORMULATIONS = ['F1', 'F2', 'F3', 'F4']
+const DOSE_LABELS  = ['0.1 mg/kg', '0.3 mg/kg', '1.0 mg/kg']
+// [formulation][dose] → knockdown %
+const KD_MATRIX = [
+  [22, 45, 71],
+  [18, 38, 63],
+  [31, 62, 89],
+  [25, 51, 78],
+]
+
+function heatColor(pct: number): string {
+  const a = 0.06 + (pct / 100) * 0.88
+  return `rgba(168,85,247,${a.toFixed(2)})`
+}
+
+function Phase3Content({ onConfirm }: { onConfirm: (val: string) => void }) {
+  const [hoveredCell, setHoveredCell] = useState<[number, number] | null>(null)
+
+  const row = hoveredCell?.[0] ?? 2
+  const col = hoveredCell?.[1] ?? 2
+  const formLabel   = FORMULATIONS[row]
+  const doseLabel   = DOSE_LABELS[col]
+  const kd          = KD_MATRIX[row][col]
+  const isCellWinner = row === 2 && col === 2
+  const detail      = LNP_FORMULATION_DETAILS[formLabel]
+
+  return (
+    <>
+      {/* ── Heat map ── */}
+      <div style={{ padding: '18px 22px 16px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>PCSK9 Knockdown (%) · LNP Formulation × Dose Matrix</SectionLabel>
+
+        {/* Dose column headers */}
+        <div style={{ display: 'flex', marginBottom: 6, marginLeft: 52 }}>
+          {DOSE_LABELS.map((d) => (
+            <div key={d} style={{
+              flex: 1, textAlign: 'center',
+              fontSize: 8, fontFamily: 'monospace', color: '#334155', letterSpacing: '0.08em',
+            }}>
+              {d}
+            </div>
+          ))}
+        </div>
+
+        {/* Rows */}
+        {FORMULATIONS.map((form, ri) => (
+          <div key={form} style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6 }}>
+            {/* Row label */}
+            <div style={{ width: 46, flexShrink: 0 }}>
+              <div style={{ fontSize: 9, fontFamily: 'monospace', fontWeight: 700, color: '#64748b' }}>{form}</div>
+              <div style={{ fontSize: 7, fontFamily: 'monospace', color: '#334155', lineHeight: 1.2 }}>
+                {LNP_FORMULATION_DETAILS[form].ionizable.replace('DLin-', '')}
+              </div>
+            </div>
+
+            {/* Cells */}
+            {[0, 1, 2].map((ci) => {
+              const val     = KD_MATRIX[ri][ci]
+              const isWin   = ri === 2 && ci === 2
+              const isHov   = hoveredCell?.[0] === ri && hoveredCell?.[1] === ci
+              const bg      = heatColor(val)
+              return (
+                <div
+                  key={ci}
+                  onMouseEnter={() => setHoveredCell([ri, ci])}
+                  onMouseLeave={() => setHoveredCell(null)}
+                  style={{
+                    flex: 1,
+                    height: 48,
+                    background: bg,
+                    borderRadius: 6,
+                    border: isWin
+                      ? '2px solid #a855f7'
+                      : isHov
+                        ? '1px solid #a855f744'
+                        : '1px solid rgba(168,85,247,0.12)',
+                    boxShadow: isWin ? '0 0 16px rgba(168,85,247,0.45)' : 'none',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'default',
+                    transition: 'border-color 0.15s',
+                    position: 'relative',
+                  }}
+                >
+                  <div style={{
+                    fontSize: 13, fontWeight: 700, fontFamily: 'monospace',
+                    color: val >= 60 ? '#e9d5ff' : val >= 40 ? '#c4b5fd' : '#7c3aed',
+                  }}>
+                    {val}%
+                  </div>
+                  {isWin && (
+                    <div style={{ fontSize: 8, color: '#a855f7', marginTop: 1 }}>★ BEST</div>
+                  )}
+                </div>
+              )
+            })}
+          </div>
+        ))}
+
+        {/* Color scale */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 10, marginLeft: 52 }}>
+          <div style={{
+            flex: 1, height: 6, borderRadius: 3,
+            background: 'linear-gradient(90deg, rgba(168,85,247,0.06), rgba(168,85,247,0.94))',
+          }} />
+          <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', position: 'absolute', marginLeft: 52 }}>
+          </div>
+          <div style={{ fontSize: 7, fontFamily: 'monospace', color: '#334155', whiteSpace: 'nowrap' }}>0% → 100% knockdown</div>
+        </div>
+      </div>
+
+      {/* ── Selected condition detail ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+          {isCellWinner && <span style={{ fontSize: 10, color: '#a855f7' }}>★</span>}
+          <span style={{ fontSize: 13, fontWeight: 700, color: isCellWinner ? '#a855f7' : '#94a3b8' }}>
+            {formLabel}
+          </span>
+          <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155' }}>·</span>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#64748b' }}>{doseLabel}</span>
+          <span style={{
+            fontSize: 8, fontFamily: 'monospace', letterSpacing: '0.1em',
+            color: isCellWinner ? '#a855f7' : kd >= 60 ? '#c084fc' : '#475569',
+            background: isCellWinner ? 'rgba(168,85,247,0.12)' : 'rgba(255,255,255,0.03)',
+            border: `1px solid ${isCellWinner ? 'rgba(168,85,247,0.35)' : '#1a2940'}`,
+            borderRadius: 3, padding: '2px 6px', marginLeft: 4,
+          }}>
+            {kd}% KNOCKDOWN
+          </span>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6 }}>
+          {[
+            ['Ionizable Lipid', detail.ionizable],
+            ['Molar Ratio',     detail.ratio + ' (IL:DOPE:Chol:PEG)'],
+            ['Particle Size',   `${detail.size} nm (PDI ${detail.pdi})`],
+            ['Encapsulation',   `${detail.encapsulation}% (Ribogreen)`],
+          ].map(([k, v]) => (
+            <div key={k} style={{ background: '#060e1a', border: '1px solid #0d1a2a', borderRadius: 5, padding: '7px 10px' }}>
+              <div style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155', marginBottom: 2 }}>{k}</div>
+              <div style={{ fontSize: 9, color: '#64748b', lineHeight: 1.4 }}>{v}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Analysis summary ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>LNP Optimization Summary</SectionLabel>
+        <div style={{
+          fontSize: 10, color: '#64748b', lineHeight: 1.6,
+          background: 'rgba(168,85,247,0.04)',
+          border: '1px solid rgba(168,85,247,0.12)',
+          borderRadius: 6, padding: '10px 12px',
+        }}>
+          <span style={{ color: '#a855f7', fontWeight: 600 }}>F3</span> (DOPE-enriched, DLin-MC3-DMA) achieved{' '}
+          <span style={{ color: '#a855f7' }}>89% PCSK9 knockdown</span> at 1.0 mg/kg — the highest across all
+          12 conditions. The elevated DOPE content (15 mol%) improves endosomal escape, driving greater
+          intracellular RNP release.{' '}
+          <span style={{ color: '#94a3b8' }}>F4</span> (C12-200) reached 78% at 1.0 mg/kg and is a strong backup.
+          All formulations showed dose-dependent response. F3 particle size (82 nm, PDI 0.08) and{' '}
+          94% encapsulation confirm manufacturing consistency. F3 at 1.0 mg/kg advances to Phase 4.
+        </div>
+      </div>
+
+      {/* ── Formulation tier legend ── */}
+      <div style={{ padding: '12px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap' }}>
+          {[
+            { label: '≥80% Excellent', color: 'rgba(168,85,247,0.9)'  },
+            { label: '60–80% Good',    color: 'rgba(168,85,247,0.6)'  },
+            { label: '40–60% Moderate',color: 'rgba(168,85,247,0.35)' },
+            { label: '<40% Poor',      color: 'rgba(168,85,247,0.12)' },
+          ].map(({ label, color }) => (
+            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: color, border: '1px solid rgba(168,85,247,0.2)' }} />
+              <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#334155' }}>{label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── CTA ── */}
+      <div style={{ padding: '18px 22px', flexShrink: 0 }}>
+        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#334155', marginBottom: 12 }}>
+          Confirm lead formulation to unlock Phase 4: Functional Validation
+        </div>
+        <CtaButton color="#a855f7" onClick={() => onConfirm('F3')}>
+          Select F3 at 1.0 mg/kg for Phase 4 →
+        </CtaButton>
+      </div>
+    </>
+  )
+}
+
 // ── Shared micro-components ───────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -471,6 +670,16 @@ const PHASE_META = {
       { text: '24 guides tested',         color: '#334155' },
       { text: '6 guides ≥50% efficiency', color: '#00d4ff' },
       { text: 'G7 leads at 84%',          color: '#00b8e0' },
+    ],
+  },
+  'delivery-opt': {
+    label: 'Phase 3 Complete — Delivery Optimization',
+    title: 'LNP Factorial Screen Results',
+    color: '#a855f7',
+    stats: [
+      { text: '12 conditions screened',     color: '#334155' },
+      { text: '4 formulations × 3 doses',   color: '#a855f7' },
+      { text: 'F3 leads at 89% knockdown',  color: '#c084fc' },
     ],
   },
 } as const
@@ -547,6 +756,7 @@ export default function ResultsDrawer() {
       {/* Phase-specific content */}
       {resultsPhaseId === 'target-validation' && <Phase1Content onConfirm={handleConfirm} />}
       {resultsPhaseId === 'guide-screen'      && <Phase2Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'delivery-opt'      && <Phase3Content onConfirm={handleConfirm} />}
     </div>
   )
 }
