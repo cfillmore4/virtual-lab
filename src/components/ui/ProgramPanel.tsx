@@ -73,8 +73,8 @@ export default function ProgramPanel() {
         maxWidth: 900,
         maxHeight: 'calc(88vh - 40px)',
         overflowY: 'auto',
-        background: 'rgba(4,9,18,0.97)',
-        border: '1px solid #1a2940',
+        background: 'rgba(10,22,40,0.97)',
+        border: '1px solid #1e4260',
         borderRadius: 16,
         padding: '28px 28px 36px',
         backdropFilter: 'blur(20px)',
@@ -92,7 +92,7 @@ export default function ProgramPanel() {
             <h2 style={{ margin: '0 0 2px', fontSize: 18, fontWeight: 700, color: 'white' }}>
               {program ? program.name : 'PCSK9 Gene Editing Program'}
             </h2>
-            <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#475569', letterSpacing: '0.08em' }}>
+            <div style={{ fontSize: 10, fontFamily: 'monospace', color: '#7ab8cc', letterSpacing: '0.08em' }}>
               {program ? program.diseaseArea : 'Cardiovascular — Hypercholesterolemia'}
               {program?.targetGene && (
                 <span style={{ color: '#ff6b35', marginLeft: 10 }}>
@@ -119,12 +119,12 @@ export default function ProgramPanel() {
           <button
             onClick={handleClose}
             style={{
-              background: 'none', border: '1px solid #1a2940', borderRadius: 6,
-              color: '#475569', fontFamily: 'monospace', fontSize: 11,
+              background: 'none', border: '1px solid #1e4260', borderRadius: 6,
+              color: '#7ab8cc', fontFamily: 'monospace', fontSize: 11,
               padding: '5px 12px', cursor: 'pointer',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#334155' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2940' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#b0cce0'; e.currentTarget.style.borderColor = '#5a9ab8' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#7ab8cc'; e.currentTarget.style.borderColor = '#1e4260' }}
           >
             ✕ Close
           </button>
@@ -145,8 +145,8 @@ export default function ProgramPanel() {
                 style={{
                   background: isSelected
                     ? `${color}14`
-                    : isComplete ? 'rgba(16,185,129,0.06)' : 'rgba(8,16,28,0.8)',
-                  border: `1px solid ${isSelected ? color : isComplete ? '#10b98144' : '#1a2940'}`,
+                    : isComplete ? 'rgba(16,185,129,0.06)' : 'rgba(10,22,38,0.8)',
+                  border: `1px solid ${isSelected ? color : isComplete ? '#10b98144' : '#1e4260'}`,
                   borderRadius: 10,
                   padding: '12px 12px 14px',
                   cursor: isLocked ? 'default' : 'pointer',
@@ -163,7 +163,7 @@ export default function ProgramPanel() {
                 }}
                 onMouseLeave={(e) => {
                   if (!isLocked && !isSelected)
-                    e.currentTarget.style.borderColor = isComplete ? '#10b98144' : '#1a2940'
+                    e.currentTarget.style.borderColor = isComplete ? '#10b98144' : '#1e4260'
                 }}
               >
                 {isSelected && (
@@ -178,11 +178,11 @@ export default function ProgramPanel() {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 8 }}>
                   <div style={{
                     width: 22, height: 22, borderRadius: '50%',
-                    background: isComplete ? '#10b981' : isSelected ? color : '#0d1a2a',
-                    border: `1px solid ${isComplete ? '#10b981' : isSelected ? color : '#1a2940'}`,
+                    background: isComplete ? '#10b981' : isSelected ? color : '#0f2538',
+                    border: `1px solid ${isComplete ? '#10b981' : isSelected ? color : '#1e4260'}`,
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 9, fontFamily: 'monospace', fontWeight: 700,
-                    color: isComplete ? '#050a0f' : isSelected ? '#050a0f' : '#334155',
+                    color: isComplete ? '#050a0f' : isSelected ? '#050a0f' : '#5a9ab8',
                     flexShrink: 0,
                   }}>
                     {isComplete ? '✓' : phase.phaseNumber}
@@ -190,19 +190,19 @@ export default function ProgramPanel() {
                   {i < 4 && (
                     <div style={{
                       flex: 1, height: 1,
-                      background: isComplete ? '#10b98144' : '#1a2940',
+                      background: isComplete ? '#10b98144' : '#1e4260',
                     }} />
                   )}
                 </div>
 
-                <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? color : '#94a3b8', marginBottom: 4, letterSpacing: '0.04em' }}>
+                <div style={{ fontSize: 10, fontWeight: 700, color: isSelected ? color : '#b0cce0', marginBottom: 4, letterSpacing: '0.04em' }}>
                   {PHASE_ICONS[phase.id as ProgramPhaseId]} {phase.name}
                 </div>
                 <div style={{
                   fontSize: 8, fontFamily: 'monospace', letterSpacing: '0.12em',
-                  color: isComplete ? '#10b981' : phase.status === 'running' ? color : '#334155',
+                  color: isComplete ? '#10b981' : phase.status === 'running' ? color : '#5a9ab8',
                   background: isComplete ? 'rgba(16,185,129,0.12)' : phase.status === 'running' ? `${color}18` : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${isComplete ? '#10b98133' : phase.status === 'running' ? `${color}44` : '#1a2940'}`,
+                  border: `1px solid ${isComplete ? '#10b98133' : phase.status === 'running' ? `${color}44` : '#1e4260'}`,
                   borderRadius: 3,
                   padding: '2px 5px',
                   display: 'inline-block',
@@ -220,18 +220,18 @@ export default function ProgramPanel() {
             display: 'grid',
             gridTemplateColumns: '1fr auto',
             gap: 24,
-            borderTop: '1px solid #0d1a2a',
+            borderTop: '1px solid #0f2538',
             paddingTop: 20,
           }}>
             {/* Left: objective + detail */}
             <div>
-              <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#334155', marginBottom: 6 }}>
+              <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.18em', color: '#5a9ab8', marginBottom: 6 }}>
                 Phase {selectedPhase.phaseNumber} · {selectedPhase.name} · {selectedPhase.experimentType.toUpperCase()}
               </div>
               <div style={{ fontSize: 12, fontWeight: 600, color: 'white', marginBottom: 8, lineHeight: 1.4 }}>
                 {selectedPhase.objective}
               </div>
-              <div style={{ fontSize: 10, color: '#475569', lineHeight: 1.55, marginBottom: 12, maxWidth: 520 }}>
+              <div style={{ fontSize: 10, color: '#7ab8cc', lineHeight: 1.55, marginBottom: 12, maxWidth: 520 }}>
                 {selectedPhase.detail}
               </div>
 
@@ -239,9 +239,9 @@ export default function ProgramPanel() {
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {['Hamilton STAR', ...getInstruments(selectedPhase.experimentType)].map((inst) => (
                   <span key={inst} style={{
-                    fontSize: 9, fontFamily: 'monospace', color: '#64748b',
+                    fontSize: 9, fontFamily: 'monospace', color: '#8ec8dc',
                     background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid #1a2940',
+                    border: '1px solid #1e4260',
                     borderRadius: 4, padding: '2px 8px',
                   }}>
                     {inst}
@@ -254,7 +254,7 @@ export default function ProgramPanel() {
             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 14, minWidth: 220 }}>
               {selectedPhase.plateSamples.length > 0 && (
                 <div>
-                  <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#334155', marginBottom: 8, textAlign: 'right' }}>
+                  <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#5a9ab8', marginBottom: 8, textAlign: 'right' }}>
                     96-Well Plate Map
                   </div>
                   <PlateMap samples={selectedPhase.plateSamples} />
@@ -263,7 +263,7 @@ export default function ProgramPanel() {
                     {selectedPhase.plateSamples.map((s) => (
                       <div key={s.group} style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
                         <div style={{ width: 8, height: 8, borderRadius: 2, background: s.color, opacity: 0.8 }} />
-                        <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#475569' }}>{s.label}</span>
+                        <span style={{ fontSize: 8, fontFamily: 'monospace', color: '#7ab8cc' }}>{s.label}</span>
                       </div>
                     ))}
                   </div>
@@ -277,10 +277,10 @@ export default function ProgramPanel() {
                 style={{
                   fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
                   letterSpacing: '0.16em', textTransform: 'uppercase',
-                  color: canStart ? '#050a0f' : '#2a3a4a',
+                  color: canStart ? '#050a0f' : '#2a4a60',
                   background: canStart
                     ? `linear-gradient(135deg, ${selectedPhase.accentColor}, ${selectedPhase.accentColor}bb)`
-                    : '#0d1a2a',
+                    : '#0f2538',
                   border: 'none', borderRadius: 7,
                   padding: '10px 22px', cursor: canStart ? 'pointer' : 'not-allowed',
                   boxShadow: canStart ? `0 0 20px ${selectedPhase.accentColor}44` : 'none',
@@ -324,7 +324,7 @@ function PlateMap({ samples }: { samples: { cols: number[]; color: string; group
       {Array.from({ length: ROWS }, (_, row) =>
         Array.from({ length: COLS }, (_, col) => {
           const colNum = col + 1
-          const color = colColorMap[colNum] ?? '#0d1a2a'
+          const color = colColorMap[colNum] ?? '#0f2538'
           const hasColor = !!colColorMap[colNum]
           return (
             <rect
@@ -334,9 +334,9 @@ function PlateMap({ samples }: { samples: { cols: number[]; color: string; group
               width={CELL}
               height={CELL}
               rx={2}
-              fill={hasColor ? color : '#0d1a2a'}
+              fill={hasColor ? color : '#0f2538'}
               opacity={hasColor ? 0.75 : 1}
-              stroke={hasColor ? color : '#1a2940'}
+              stroke={hasColor ? color : '#1e4260'}
               strokeWidth={0.5}
             />
           )

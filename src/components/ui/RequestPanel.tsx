@@ -27,8 +27,8 @@ export default function RequestPanel() {
       <div style={{
         width: '100%',
         maxWidth: 860,
-        background: 'rgba(4,9,18,0.95)',
-        border: '1px solid #1a2940',
+        background: 'rgba(10,22,40,0.97)',
+        border: '1.5px solid #1e4a6a',
         borderBottom: 'none',
         borderRadius: '16px 16px 0 0',
         padding: '28px 28px 36px',
@@ -48,12 +48,12 @@ export default function RequestPanel() {
           <button
             onClick={closeRequestPanel}
             style={{
-              background: 'none', border: '1px solid #1a2940', borderRadius: 6,
-              color: '#475569', fontFamily: 'monospace', fontSize: 11,
+              background: 'none', border: '1px solid #1e4260', borderRadius: 6,
+              color: '#7ab8cc', fontFamily: 'monospace', fontSize: 11,
               padding: '5px 12px', cursor: 'pointer',
             }}
-            onMouseEnter={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#334155' }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2940' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = '#b0cce0'; e.currentTarget.style.borderColor = '#5a9ab8' }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#7ab8cc'; e.currentTarget.style.borderColor = '#1e4260' }}
           >
             ✕ Cancel
           </button>
@@ -74,8 +74,8 @@ export default function RequestPanel() {
                 key={type}
                 onClick={() => setSelected(type)}
                 style={{
-                  background: isSelected ? `${cfg.accentColor}12` : 'rgba(8,16,28,0.8)',
-                  border: `1px solid ${isSelected ? cfg.accentColor : '#1a2940'}`,
+                  background: isSelected ? `${cfg.accentColor}12` : 'rgba(10,22,38,0.8)',
+                  border: `1px solid ${isSelected ? cfg.accentColor : '#1e4260'}`,
                   borderRadius: 10,
                   padding: '14px 14px 16px',
                   cursor: 'pointer',
@@ -93,8 +93,8 @@ export default function RequestPanel() {
                 }}
                 onMouseLeave={(e) => {
                   if (!isSelected) {
-                    e.currentTarget.style.borderColor = '#1a2940'
-                    e.currentTarget.style.background = 'rgba(8,16,28,0.8)'
+                    e.currentTarget.style.borderColor = '#1e4260'
+                    e.currentTarget.style.background = 'rgba(10,22,38,0.8)'
                   }
                 }}
               >
@@ -112,7 +112,7 @@ export default function RequestPanel() {
                   fontSize: 11,
                   fontWeight: 700,
                   letterSpacing: '0.06em',
-                  color: isSelected ? cfg.accentColor : '#94a3b8',
+                  color: isSelected ? cfg.accentColor : '#b0cce0',
                   marginBottom: 6,
                   transition: 'color 0.15s',
                 }}>
@@ -120,7 +120,7 @@ export default function RequestPanel() {
                 </div>
                 <div style={{
                   fontSize: 10,
-                  color: '#475569',
+                  color: '#7ab8cc',
                   lineHeight: 1.45,
                   marginBottom: 10,
                 }}>
@@ -129,9 +129,9 @@ export default function RequestPanel() {
                 <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                   <span style={{
                     fontSize: 9, fontFamily: 'monospace',
-                    color: isSelected ? cfg.accentColor : '#334155',
+                    color: isSelected ? cfg.accentColor : '#5a9ab8',
                     background: isSelected ? `${cfg.accentColor}18` : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${isSelected ? cfg.accentColor + '44' : '#1a2940'}`,
+                    border: `1px solid ${isSelected ? cfg.accentColor + '44' : '#1e4260'}`,
                     borderRadius: 4,
                     padding: '2px 6px',
                     letterSpacing: '0.08em',
@@ -140,9 +140,9 @@ export default function RequestPanel() {
                   </span>
                   <span style={{
                     fontSize: 9, fontFamily: 'monospace',
-                    color: '#334155',
+                    color: '#5a9ab8',
                     background: 'rgba(255,255,255,0.03)',
-                    border: '1px solid #1a2940',
+                    border: '1px solid #1e4260',
                     borderRadius: 4,
                     padding: '2px 6px',
                     letterSpacing: '0.04em',
@@ -158,16 +158,16 @@ export default function RequestPanel() {
         {/* Instruments row */}
         {selected && (
           <div style={{ marginBottom: 18 }}>
-            <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#334155', marginBottom: 8 }}>
+            <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.15em', color: '#5a9ab8', marginBottom: 8 }}>
               Instrument pipeline
             </div>
             <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
               {EXPERIMENT_CONFIGS[selected].instruments.map((inst) => (
                 <span key={inst} style={{
                   fontSize: 10, fontFamily: 'monospace',
-                  color: '#64748b',
+                  color: '#8ec8dc',
                   background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid #1a2940',
+                  border: '1px solid #1e4260',
                   borderRadius: 5,
                   padding: '4px 10px',
                 }}>
@@ -192,7 +192,7 @@ export default function RequestPanel() {
               color: selected ? '#050a0f' : '#2a3a4a',
               background: selected
                 ? `linear-gradient(135deg, ${EXPERIMENT_CONFIGS[selected].accentColor}, ${EXPERIMENT_CONFIGS[selected].accentColor}bb)`
-                : '#0d1a2a',
+                : '#0f2538',
               border: 'none',
               borderRadius: 7,
               padding: '10px 28px',

@@ -23,8 +23,8 @@ export default function ScientistTaskPanel() {
       bottom: 80,
       left: '50%',
       transform: 'translateX(-50%)',
-      background: 'rgba(4,9,18,0.93)',
-      border: '1px solid #1a2940',
+      background: 'rgba(10,22,40,0.97)',
+      border: '1px solid #1e4260',
       borderRadius: 14,
       padding: '16px 20px',
       minWidth: 290,
@@ -36,7 +36,7 @@ export default function ScientistTaskPanel() {
       {/* Header */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 14 }}>
         <div>
-          <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#475569', marginBottom: 2 }}>
+          <div style={{ fontSize: 9, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.2em', color: '#7ab8cc', marginBottom: 2 }}>
             Task Assignment
           </div>
           <div style={{ fontSize: 14, fontWeight: 700, color: '#e2e8f0', letterSpacing: '0.05em' }}>
@@ -46,12 +46,12 @@ export default function ScientistTaskPanel() {
         <button
           onClick={() => selectScientist(null)}
           style={{
-            background: 'none', border: '1px solid #1a2940', borderRadius: 6,
-            color: '#475569', cursor: 'pointer', fontSize: 13,
+            background: 'none', border: '1px solid #1e4260', borderRadius: 6,
+            color: '#7ab8cc', cursor: 'pointer', fontSize: 13,
             lineHeight: 1, padding: '4px 8px', transition: 'all 0.15s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#334155' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2940' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#b0cce0'; e.currentTarget.style.borderColor = '#5a9ab8' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#7ab8cc'; e.currentTarget.style.borderColor = '#1e4260' }}
         >
           ✕
         </button>
@@ -66,7 +66,7 @@ export default function ScientistTaskPanel() {
           border: `1px solid ${scientist.task.accentColor}40`,
           borderRadius: 8,
         }}>
-          <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 3 }}>
+          <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#7ab8cc', letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 3 }}>
             Current Task
           </div>
           <div style={{ fontSize: 13, color: scientist.task.accentColor, fontWeight: 600 }}>
@@ -76,7 +76,7 @@ export default function ScientistTaskPanel() {
       )}
 
       {/* Task grid */}
-      <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#475569', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
+      <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#7ab8cc', letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 8 }}>
         {scientist.task ? 'Reassign Task' : 'Assign Task'}
       </div>
 
@@ -89,8 +89,8 @@ export default function ScientistTaskPanel() {
               key={type}
               onClick={() => assignTask(selectedId, type)}
               style={{
-                background: isActive ? `${def.accentColor}22` : 'rgba(10,20,36,0.8)',
-                border: `1px solid ${isActive ? def.accentColor : '#1a2940'}`,
+                background: isActive ? `${def.accentColor}22` : 'rgba(12,24,42,0.8)',
+                border: `1px solid ${isActive ? def.accentColor : '#1e4260'}`,
                 borderRadius: 8,
                 padding: '9px 11px',
                 cursor: 'pointer',
@@ -102,13 +102,13 @@ export default function ScientistTaskPanel() {
                 e.currentTarget.style.borderColor = def.accentColor
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.background = isActive ? `${def.accentColor}22` : 'rgba(10,20,36,0.8)'
-                e.currentTarget.style.borderColor = isActive ? def.accentColor : '#1a2940'
+                e.currentTarget.style.background = isActive ? `${def.accentColor}22` : 'rgba(12,24,42,0.8)'
+                e.currentTarget.style.borderColor = isActive ? def.accentColor : '#1e4260'
               }}
             >
               <div style={{
                 fontSize: 11, fontWeight: 600,
-                color: isActive ? def.accentColor : '#64748b',
+                color: isActive ? def.accentColor : '#8ec8dc',
                 fontFamily: 'monospace',
                 letterSpacing: '0.04em',
                 transition: 'color 0.18s',
@@ -129,9 +129,9 @@ export default function ScientistTaskPanel() {
             marginTop: 10,
             padding: '8px',
             background: 'transparent',
-            border: '1px solid #1a2940',
+            border: '1px solid #1e4260',
             borderRadius: 8,
-            color: '#475569',
+            color: '#7ab8cc',
             fontFamily: 'monospace',
             fontSize: 9,
             textTransform: 'uppercase',
@@ -139,8 +139,8 @@ export default function ScientistTaskPanel() {
             cursor: 'pointer',
             transition: 'all 0.18s',
           }}
-          onMouseEnter={(e) => { e.currentTarget.style.color = '#94a3b8'; e.currentTarget.style.borderColor = '#334155' }}
-          onMouseLeave={(e) => { e.currentTarget.style.color = '#475569'; e.currentTarget.style.borderColor = '#1a2940' }}
+          onMouseEnter={(e) => { e.currentTarget.style.color = '#b0cce0'; e.currentTarget.style.borderColor = '#5a9ab8' }}
+          onMouseLeave={(e) => { e.currentTarget.style.color = '#7ab8cc'; e.currentTarget.style.borderColor = '#1e4260' }}
         >
           Clear Task — Resume Patrol
         </button>

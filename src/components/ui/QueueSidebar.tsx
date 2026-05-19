@@ -15,7 +15,7 @@ function ExperimentRow({ exp }: { exp: ExperimentRequest }) {
   const isRunning  = exp.status === 'running'
   const isComplete = exp.status === 'complete'
 
-  const statusColor = isRunning ? cfg.accentColor : isComplete ? '#10b981' : '#475569'
+  const statusColor = isRunning ? cfg.accentColor : isComplete ? '#10b981' : '#7ab8cc'
   const statusLabel = isRunning
     ? (exp.robotId ? `ROBOT ${exp.robotId}` : 'STARTING')
     : isComplete
@@ -34,7 +34,7 @@ function ExperimentRow({ exp }: { exp: ExperimentRequest }) {
         : isComplete
         ? 'rgba(16,185,129,0.05)'
         : 'rgba(255,255,255,0.02)',
-      border: `1px solid ${isRunning ? cfg.accentColor + '30' : '#111e2e'}`,
+      border: `1px solid ${isRunning ? cfg.accentColor + '30' : '#1a3850'}`,
       marginBottom: 6,
       transition: 'background 0.3s',
     }}>
@@ -53,14 +53,14 @@ function ExperimentRow({ exp }: { exp: ExperimentRequest }) {
         <div style={{
           fontSize: 11,
           fontWeight: 600,
-          color: isRunning ? cfg.accentColor : isComplete ? '#10b981' : '#64748b',
+          color: isRunning ? cfg.accentColor : isComplete ? '#10b981' : '#8ec8dc',
           whiteSpace: 'nowrap',
           overflow: 'hidden',
           textOverflow: 'ellipsis',
         }}>
           {cfg.shortName}
         </div>
-        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#334155', marginTop: 1 }}>
+        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#5a9ab8', marginTop: 1 }}>
           {timeAgo(exp.requestedAt)}
         </div>
       </div>
@@ -97,21 +97,21 @@ export default function QueueSidebar() {
     return (
       <div style={{
         position: 'absolute', top: 20, right: 20,
-        background: 'rgba(4,9,18,0.75)',
-        border: '1px solid #111e2e',
+        background: 'rgba(10,22,40,0.85)',
+        border: '1px solid #1a3850',
         borderRadius: 10,
         padding: '10px 14px',
         backdropFilter: 'blur(10px)',
         pointerEvents: 'none',
       }}>
-        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#2a3a4a', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
+        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#4a8aaa', letterSpacing: '0.12em', textTransform: 'uppercase' }}>
           All robots standby
         </div>
         <div style={{ display: 'flex', gap: 8, marginTop: 6 }}>
           {['A', 'B', 'C'].map((id) => (
             <span key={id} style={{
-              fontSize: 9, fontFamily: 'monospace', color: '#3a5a7a',
-              background: 'rgba(0,212,255,0.05)', border: '1px solid #1a2940',
+              fontSize: 9, fontFamily: 'monospace', color: '#5a9ab8',
+              background: 'rgba(0,212,255,0.05)', border: '1px solid #1e4260',
               borderRadius: 4, padding: '2px 7px',
             }}>
               {id}
@@ -126,8 +126,8 @@ export default function QueueSidebar() {
     <div style={{
       position: 'absolute', top: 20, right: 20,
       width: 220,
-      background: 'rgba(4,9,18,0.88)',
-      border: '1px solid #1a2940',
+      background: 'rgba(10,22,40,0.92)',
+      border: '1px solid #1e4260',
       borderRadius: 12,
       padding: '14px 14px 10px',
       backdropFilter: 'blur(14px)',
@@ -144,13 +144,13 @@ export default function QueueSidebar() {
           <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#10b981' }}>
             {runningCount} running
           </span>
-          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#475569' }}>·</span>
-          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#475569' }}>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#7ab8cc' }}>·</span>
+          <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#7ab8cc' }}>
             {idleCount} idle
           </span>
           {pending.length > 0 && (
             <>
-              <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#475569' }}>·</span>
+              <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#7ab8cc' }}>·</span>
               <span style={{ fontSize: 10, fontFamily: 'monospace', color: '#f59e0b' }}>
                 {pending.length} queued
               </span>
@@ -162,7 +162,7 @@ export default function QueueSidebar() {
       {/* Running */}
       {running.length > 0 && (
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#1a3a5a', marginBottom: 6 }}>
+          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#3a8ab0', marginBottom: 6 }}>
             Active
           </div>
           {running.map((e) => <ExperimentRow key={e.id} exp={e} />)}
@@ -172,7 +172,7 @@ export default function QueueSidebar() {
       {/* Pending queue */}
       {pending.length > 0 && (
         <div style={{ marginBottom: 10 }}>
-          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#1a3a5a', marginBottom: 6 }}>
+          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#3a8ab0', marginBottom: 6 }}>
             Queue ({pending.length})
           </div>
           {pending.map((e) => <ExperimentRow key={e.id} exp={e} />)}
@@ -182,7 +182,7 @@ export default function QueueSidebar() {
       {/* Recent completed */}
       {recent.length > 0 && (
         <div>
-          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#1a3a5a', marginBottom: 6 }}>
+          <div style={{ fontSize: 8, fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.14em', color: '#3a8ab0', marginBottom: 6 }}>
             Recent
           </div>
           {recent.map((e) => <ExperimentRow key={e.id} exp={e} />)}

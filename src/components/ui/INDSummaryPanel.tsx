@@ -55,8 +55,8 @@ export default function INDSummaryPanel() {
       <div
         ref={panelRef}
         style={{
-          background: 'linear-gradient(160deg, #0d1f2d 0%, #091520 100%)',
-          border: `1px solid ${GOLD}55`,
+          background: 'linear-gradient(160deg, #0f2438 0%, #0a1c30 100%)',
+          border: `1.5px solid ${GOLD}66`,
           borderRadius: 16,
           width: '100%', maxWidth: 840,
           maxHeight: '92vh', overflowY: 'auto',
@@ -76,7 +76,7 @@ export default function INDSummaryPanel() {
               PCSK9 GENE EDITING<br />
               <span style={{ color: GOLD }}>PROGRAM SUMMARY</span>
             </div>
-            <div style={{ marginTop: 10, fontSize: 10, color: '#64748b', letterSpacing: '0.12em' }}>
+            <div style={{ marginTop: 10, fontSize: 10, color: '#8ec8dc', letterSpacing: '0.12em' }}>
               {program.name} · {program.diseaseArea}
             </div>
           </div>
@@ -91,13 +91,13 @@ export default function INDSummaryPanel() {
             }}>
               ✓ IND READY
             </div>
-            <div style={{ fontSize: 9, color: '#475569', letterSpacing: '0.1em' }}>
+            <div style={{ fontSize: 9, color: '#7ab8cc', letterSpacing: '0.1em' }}>
               ALL PRECLINICAL<br />CRITERIA MET
             </div>
           </div>
         </div>
 
-        <div style={{ borderTop: `1px solid #1e3a50`, marginBottom: 28 }} />
+        <div style={{ borderTop: `1px solid #1e4260`, marginBottom: 28 }} />
 
         {/* ── Key Data Cards ──────────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 12, marginBottom: 28 }}>
@@ -108,11 +108,11 @@ export default function INDSummaryPanel() {
             { label: 'Peak On-Target',    value: '84% indels',                       color: GREEN  },
           ].map((card) => (
             <div key={card.label} style={{
-              background: '#0a1e2e',
+              background: '#0c2238',
               border: `1px solid ${card.color}33`,
               borderRadius: 10, padding: '14px 16px',
             }}>
-              <div style={{ fontSize: 8, letterSpacing: '0.2em', color: '#64748b', textTransform: 'uppercase', marginBottom: 6 }}>
+              <div style={{ fontSize: 8, letterSpacing: '0.2em', color: '#8ec8dc', textTransform: 'uppercase', marginBottom: 6 }}>
                 {card.label}
               </div>
               <div style={{ fontSize: 16, fontWeight: 800, color: card.color, letterSpacing: '0.05em' }}>
@@ -124,14 +124,14 @@ export default function INDSummaryPanel() {
 
         {/* ── Phase Timeline ──────────────────────────────────────────── */}
         <div style={{ marginBottom: 28 }}>
-          <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#64748b', marginBottom: 14 }}>
+          <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#8ec8dc', marginBottom: 14 }}>
             Preclinical Program — Phase Completion Summary
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
             {PHASE_ROWS.map((row) => (
               <div key={row.num} style={{
                 display: 'flex', alignItems: 'center', gap: 14,
-                background: '#0a1e2e', borderRadius: 8, padding: '10px 16px',
+                background: '#0c2238', borderRadius: 8, padding: '10px 16px',
                 border: `1px solid ${row.color}22`,
               }}>
                 <div style={{
@@ -143,7 +143,7 @@ export default function INDSummaryPanel() {
                   {row.num}
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: 10, color: '#94a3b8', letterSpacing: '0.08em' }}>{row.label}</div>
+                  <div style={{ fontSize: 10, color: '#b0cce0', letterSpacing: '0.08em' }}>{row.label}</div>
                 </div>
                 <div style={{ fontSize: 11, color: '#cbd5e1', letterSpacing: '0.04em' }}>
                   {phaseValue(program, row.field)}
@@ -162,7 +162,7 @@ export default function INDSummaryPanel() {
         {/* ── Regulatory Checklist ────────────────────────────────────── */}
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20, marginBottom: 28 }}>
           <div>
-            <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>
+            <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#8ec8dc', marginBottom: 12 }}>
               IND Filing Criteria — Preclinical
             </div>
             {[
@@ -173,12 +173,12 @@ export default function INDSummaryPanel() {
             ].map((item) => (
               <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
                 <span style={{ color: GREEN, fontSize: 12 }}>✓</span>
-                <span style={{ fontSize: 11, color: '#94a3b8' }}>{item.text}</span>
+                <span style={{ fontSize: 11, color: '#b0cce0' }}>{item.text}</span>
               </div>
             ))}
           </div>
           <div>
-            <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#64748b', marginBottom: 12 }}>
+            <div style={{ fontSize: 9, letterSpacing: '0.25em', textTransform: 'uppercase', color: '#8ec8dc', marginBottom: 12 }}>
               Next Steps — Before IND Submission
             </div>
             {[
@@ -187,8 +187,8 @@ export default function INDSummaryPanel() {
               { text: 'Pharmacokinetics & biodistribution profiling',          done: false },
             ].map((item) => (
               <div key={item.text} style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 8 }}>
-                <span style={{ color: '#475569', fontSize: 12 }}>○</span>
-                <span style={{ fontSize: 11, color: '#475569' }}>{item.text}</span>
+                <span style={{ color: '#7ab8cc', fontSize: 12 }}>○</span>
+                <span style={{ fontSize: 11, color: '#7ab8cc' }}>{item.text}</span>
               </div>
             ))}
           </div>
@@ -207,7 +207,7 @@ export default function INDSummaryPanel() {
             <div style={{ fontSize: 11, fontWeight: 700, color: GOLD2, marginBottom: 2 }}>
               AMP-seq Safety Screen Cleared
             </div>
-            <div style={{ fontSize: 10, color: '#94a3b8', lineHeight: 1.6 }}>
+            <div style={{ fontSize: 10, color: '#b0cce0', lineHeight: 1.6 }}>
               G7 guide RNA shows no clinically significant off-target editing across all 10 Cas-OFFinder-predicted loci.
               Maximum detected: 0.8% at OT-1 (CELSR2 intron 8, 2 mm) — well below the 2% regulatory concern threshold.
               The off-target profile supports progression to GLP in vivo studies.
@@ -222,9 +222,9 @@ export default function INDSummaryPanel() {
             style={{
               fontFamily: 'monospace', fontSize: 11, fontWeight: 700,
               letterSpacing: '0.15em', textTransform: 'uppercase',
-              color: '#64748b',
+              color: '#8ec8dc',
               background: 'transparent',
-              border: '1px solid #1e3a50', borderRadius: 8,
+              border: '1px solid #1e4260', borderRadius: 8,
               padding: '12px 24px', cursor: 'pointer',
             }}
           >
