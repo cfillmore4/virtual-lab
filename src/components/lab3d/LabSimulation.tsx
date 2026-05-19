@@ -26,6 +26,7 @@ import QueueSidebar        from '../ui/QueueSidebar'
 import ScientistTaskPanel  from '../ui/ScientistTaskPanel'
 import ProgramPanel        from '../ui/ProgramPanel'
 import ResultsDrawer       from '../ui/ResultsDrawer'
+import INDSummaryPanel     from '../ui/INDSummaryPanel'
 
 // ─── Intro camera sweep ───────────────────────────────────────────────────────
 
@@ -270,6 +271,7 @@ export default function LabSimulation() {
   const startProgram     = useLabStore((s) => s.startProgram)
   const program          = useLabStore((s) => s.program)
   const resultsPhaseId   = useLabStore((s) => s.resultsPhaseId)
+  const indPanelOpen     = useLabStore((s) => s.indPanelOpen)
 
   return (
     <div style={{ position: 'absolute', inset: 0, background: '#5a6e7a' }}>
@@ -317,6 +319,7 @@ export default function LabSimulation() {
       {requestPanelOpen && <RequestPanel />}
       {programPanelOpen && <ProgramPanel />}
       {resultsPhaseId && <ResultsDrawer />}
+      {indPanelOpen && <INDSummaryPanel />}
 
       {!requestPanelOpen && !programPanelOpen && (
         <div style={{

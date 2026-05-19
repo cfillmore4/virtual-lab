@@ -66,6 +66,7 @@ interface LabStore {
   program: Program | null
   programPanelOpen: boolean
   resultsPhaseId: ProgramPhaseId | null
+  indPanelOpen: boolean
 
   openRequestPanel: () => void
   closeRequestPanel: () => void
@@ -82,6 +83,8 @@ interface LabStore {
   startPhase: (phaseId: ProgramPhaseId) => void
   confirmPhaseResults: (phaseId: ProgramPhaseId, selectedValue: string) => void
   closeResults: () => void
+  openIndPanel: () => void
+  closeIndPanel: () => void
 }
 
 const INITIAL_ROBOTS: RobotState[] = [
@@ -127,6 +130,7 @@ export const useLabStore = create<LabStore>((set, get) => ({
   program: null,
   programPanelOpen: false,
   resultsPhaseId: null,
+  indPanelOpen: false,
 
   openRequestPanel: () => set({ requestPanelOpen: true }),
   closeRequestPanel: () => set({ requestPanelOpen: false }),
@@ -135,6 +139,9 @@ export const useLabStore = create<LabStore>((set, get) => ({
   closeProgramPanel: () => set({ programPanelOpen: false }),
 
   closeResults: () => set({ resultsPhaseId: null }),
+
+  openIndPanel: () => set({ indPanelOpen: true }),
+  closeIndPanel: () => set({ indPanelOpen: false }),
 
   selectScientist: (id) => set({ selectedScientistId: id }),
 
@@ -237,6 +244,7 @@ export const useLabStore = create<LabStore>((set, get) => ({
           phases: updatedPhases,
         },
         resultsPhaseId: null,
+        indPanelOpen: phaseId === 'safety-screen' ? true : s.indPanelOpen,
       }
     })
   },
