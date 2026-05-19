@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { useLabStore } from '../../store/labStore'
-import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, PHASE3_LNP_DATA, LNP_FORMULATION_DETAILS } from '../../types/program'
+import { PHASE1_GENES, PHASE1_BACKGROUND, PHASE2_GUIDES, PHASE3_LNP_DATA, LNP_FORMULATION_DETAILS, PHASE4_WESTERN, PHASE4_LDL_UPTAKE } from '../../types/program'
 import type { DEGene, GuideResult } from '../../types/program'
 
 // ── Volcano plot (Phase 1) ────────────────────────────────────────────────────
@@ -609,6 +609,328 @@ function Phase3Content({ onConfirm }: { onConfirm: (val: string) => void }) {
   )
 }
 
+// ── Phase 4: Functional Validation ───────────────────────────────────────────
+
+const GREEN = '#10b981'
+
+function WesternBlot({ hoveredLane, onHover }: {
+  hoveredLane: number | null
+  onHover: (i: number | null) => void
+}) {
+  const LANES   = PHASE4_WESTERN.length
+  const W       = 420
+  const LANE_W  = Math.floor(W / (LANES + 1))  // +1 for label column
+  const LABEL_W = W - LANE_W * LANES
+  const GEL_H   = 52   // each antibody strip height
+  const GAP     = 18   // gap between strips
+  const MT      = 28   // top margin (lane labels)
+  const TOTAL_H = MT + GEL_H + GAP + GEL_H + 18  // labels + PCSK9 strip + gap + GAPDH strip + bottom
+
+  return (
+    <svg width={W} height={TOTAL_H} style={{ display: 'block', overflow: 'visible' }}>
+      <defs>
+        <filter id="bandBlur">
+          <feGaussianBlur stdDeviation="1.8 2.4" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+        <filter id="glow">
+          <feGaussianBlur stdDeviation="2" result="coloredBlur" />
+          <feMerge><feMergeNode in="coloredBlur" /><feMergeNode in="SourceGraphic" /></feMerge>
+        </filter>
+      </defs>
+
+      {/* Lane header labels */}
+      {PHASE4_WESTERN.map((b, i) => {
+        const cx = LABEL_W + i * LANE_W + LANE_W / 2
+        const isHov = hoveredLane === i
+        return (
+          <text key={i} x={cx} y={MT - 6} fontSize={7} fontFamily="monospace"
+            fill={b.isWinner ? GREEN : isHov ? '#94a3b8' : '#475569'}
+            textAnchor="middle" fontWeight={b.isWinner ? 700 : 400}
+            style={{ cursor: 'default' }}
+          >
+            {b.lane}
+          </text>
+        )
+      })}
+
+      {/* PCSK9 strip */}
+      <rect x={LABEL_W} y={MT} width={LANE_W * LANES} height={GEL_H} fill="#060c14" rx={3} />
+      <text x={LABEL_W - 6} y={MT + GEL_H / 2 + 3} fontSize={8} fontFamily="monospace"
+        fill="#475569" textAnchor="end">PCSK9</text>
+      <text x={LABEL_W - 6} y={MT + GEL_H / 2 + 12} fontSize={6} fontFamily="monospace"
+        fill="#334155" textAnchor="end">72 kDa</text>
+
+      {PHASE4_WESTERN.map((b, i) => {
+        const cx    = LABEL_W + i * LANE_W + LANE_W / 2
+        const alpha = b.pcsk9Intensity / 100
+        const bw    = LANE_W * 0.55
+        const bh    = GEL_H * 0.62 * Math.max(0.08, alpha)
+        const isHov = hoveredLane === i
+        return (
+          <g key={i}
+            onMouseEnter={() => onHover(i)}
+            onMouseLeave={() => onHover(null)}
+            style={{ cursor: 'default' }}
+          >
+            <rect
+              x={cx - LANE_W / 2} y={MT} width={LANE_W} height={GEL_H}
+              fill="transparent"
+            />
+            <rect
+              x={cx - bw / 2}
+              y={MT + (GEL_H - bh) / 2}
+              width={bw} height={bh} rx={2}
+              fill={b.isWinner ? '#10b981' : isHov ? '#c0e8ff' : '#b8d4e8'}
+              opacity={b.isWinner ? 0.85 : 0.15 + alpha * 0.75}
+              filter="url(#bandBlur)"
+            />
+            {b.isWinner && (
+              <rect
+                x={cx - bw / 2} y={MT + (GEL_H - bh) / 2}
+                width={bw} height={bh} rx={2}
+                fill="none" stroke={GREEN} strokeWidth={1}
+                opacity={0.6} filter="url(#glow)"
+              />
+            )}
+          </g>
+        )
+      })}
+
+      {/* GAPDH strip (loading control — uniform) */}
+      <rect x={LABEL_W} y={MT + GEL_H + GAP} width={LANE_W * LANES} height={GEL_H} fill="#060c14" rx={3} />
+      <text x={LABEL_W - 6} y={MT + GEL_H + GAP + GEL_H / 2 + 3} fontSize={8} fontFamily="monospace"
+        fill="#475569" textAnchor="end">GAPDH</text>
+      <text x={LABEL_W - 6} y={MT + GEL_H + GAP + GEL_H / 2 + 12} fontSize={6} fontFamily="monospace"
+        fill="#334155" textAnchor="end">37 kDa</text>
+
+      {PHASE4_WESTERN.map((_, i) => {
+        const cx = LABEL_W + i * LANE_W + LANE_W / 2
+        const bw = LANE_W * 0.55
+        const bh = GEL_H * 0.55
+        return (
+          <rect key={i}
+            x={cx - bw / 2}
+            y={MT + GEL_H + GAP + (GEL_H - bh) / 2}
+            width={bw} height={bh} rx={2}
+            fill="#b8d4e8" opacity={0.72}
+            filter="url(#bandBlur)"
+          />
+        )
+      })}
+
+      {/* Intensity label under each PCSK9 band */}
+      {PHASE4_WESTERN.map((b, i) => {
+        const cx = LABEL_W + i * LANE_W + LANE_W / 2
+        return (
+          <text key={i} x={cx} y={MT + GEL_H + GAP - 4}
+            fontSize={7} fontFamily="monospace" textAnchor="middle"
+            fill={b.isWinner ? GREEN : '#334155'}
+            fontWeight={b.isWinner ? 700 : 400}
+          >
+            {b.pcsk9Intensity}%
+          </text>
+        )
+      })}
+    </svg>
+  )
+}
+
+function LDLChart() {
+  const MAX_FC = 4.0
+  const BAR_W  = 52
+  const GAP    = 12
+  const H      = 120
+  const MB     = 44  // bottom margin for labels
+
+  const totalW = PHASE4_LDL_UPTAKE.length * (BAR_W + GAP) - GAP + 24
+
+  return (
+    <svg width={totalW} height={H + MB} style={{ display: 'block', overflow: 'visible' }}>
+      {/* Baseline reference at 1.0x */}
+      <line
+        x1={0} y1={H * (1 - 1.0 / MAX_FC)}
+        x2={totalW} y2={H * (1 - 1.0 / MAX_FC)}
+        stroke="#1e3050" strokeWidth={1} strokeDasharray="4 3"
+      />
+      <text x={totalW + 3} y={H * (1 - 1.0 / MAX_FC) + 3}
+        fontSize={7} fontFamily="monospace" fill="#334155">1.0×</text>
+
+      {PHASE4_LDL_UPTAKE.map((pt, i) => {
+        const x    = i * (BAR_W + GAP)
+        const barH = (pt.foldChange / MAX_FC) * H
+        const y    = H - barH
+        const color = pt.isWinner ? GREEN : '#1a4a36'
+
+        return (
+          <g key={i}>
+            <rect x={x} y={y} width={BAR_W} height={barH} rx={3}
+              fill={pt.isWinner
+                ? `linear-gradient(to top, ${GREEN}, ${GREEN}88)` // won't work in SVG, use stops
+                : color}
+              opacity={pt.isWinner ? 1 : 0.6}
+            />
+            {/* gradient via linearGradient */}
+            <defs>
+              <linearGradient id={`bar-grad-${i}`} x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor={pt.isWinner ? GREEN : '#1a4a36'} />
+                <stop offset="100%" stopColor={pt.isWinner ? '#34d399' : '#0d2a1e'} />
+              </linearGradient>
+            </defs>
+            <rect x={x} y={y} width={BAR_W} height={barH} rx={3}
+              fill={`url(#bar-grad-${i})`}
+              opacity={pt.isWinner ? 1 : 0.65}
+              stroke={pt.isWinner ? GREEN : 'none'}
+              strokeWidth={1}
+              style={{ boxShadow: pt.isWinner ? `0 0 12px ${GREEN}` : 'none' }}
+            />
+            {pt.isWinner && (
+              <rect x={x} y={y} width={BAR_W} height={barH} rx={3}
+                fill="none" stroke={GREEN} strokeWidth={1.5} opacity={0.8}
+                filter="url(#glow)"
+              />
+            )}
+            {/* Value label */}
+            <text x={x + BAR_W / 2} y={y - 4}
+              fontSize={9} fontFamily="monospace" textAnchor="middle"
+              fill={pt.isWinner ? GREEN : '#475569'}
+              fontWeight={pt.isWinner ? 700 : 400}
+            >
+              {pt.foldChange.toFixed(1)}×
+            </text>
+            {/* X-axis label — wrap at space */}
+            {pt.condition.split(' ').map((word, wi) => (
+              <text key={wi} x={x + BAR_W / 2} y={H + 14 + wi * 10}
+                fontSize={7} fontFamily="monospace" textAnchor="middle"
+                fill={pt.isWinner ? GREEN : '#475569'}
+                fontWeight={pt.isWinner ? 700 : 400}
+              >
+                {word}
+              </text>
+            ))}
+          </g>
+        )
+      })}
+
+      {/* Y-axis label */}
+      <text x={-36} y={H / 2} fontSize={8} fontFamily="monospace" fill="#334155"
+        textAnchor="middle" transform={`rotate(-90, -36, ${H / 2})`}>
+        LDL uptake (fold vs. untreated)
+      </text>
+    </svg>
+  )
+}
+
+function Phase4Content({ onConfirm }: { onConfirm: (val: string) => void }) {
+  const [hoveredLane, setHoveredLane] = useState<number | null>(null)
+
+  const hovered    = hoveredLane !== null ? PHASE4_WESTERN[hoveredLane] : PHASE4_WESTERN[3]
+  const knockdown  = 100 - hovered.pcsk9Intensity
+  const ldlForHov  = PHASE4_LDL_UPTAKE.find(p => p.condition === (hovered.isWinner ? 'F3 1.0 mg/kg' : null))
+
+  const passCriteria = hovered.isWinner
+
+  return (
+    <>
+      {/* ── Western blot ── */}
+      <div style={{ padding: '18px 22px 14px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Western Blot · PCSK9 Protein Knockdown · Hover lanes to inspect</SectionLabel>
+        <WesternBlot hoveredLane={hoveredLane} onHover={setHoveredLane} />
+        {/* Lane detail */}
+        <div style={{ marginTop: 10, display: 'flex', alignItems: 'baseline', gap: 10 }}>
+          <span style={{ fontSize: 11, fontWeight: 700, color: hovered.isWinner ? GREEN : '#94a3b8' }}>
+            {hovered.lane}
+          </span>
+          <span style={{ fontSize: 9, fontFamily: 'monospace', color: '#475569' }}>
+            PCSK9: {hovered.pcsk9Intensity}% of untreated
+          </span>
+          <span style={{ fontSize: 9, fontFamily: 'monospace',
+            color: knockdown >= 80 ? GREEN : knockdown >= 50 ? '#059669' : '#475569' }}>
+            ({knockdown}% reduction)
+          </span>
+          {hovered.isWinner && (
+            <span style={{ fontSize: 8, fontFamily: 'monospace', letterSpacing: '0.1em',
+              color: GREEN, background: 'rgba(16,185,129,0.12)',
+              border: '1px solid rgba(16,185,129,0.3)', borderRadius: 3, padding: '2px 6px' }}>
+              ✓ MEETS CRITERIA
+            </span>
+          )}
+        </div>
+      </div>
+
+      {/* ── LDL uptake chart ── */}
+      <div style={{ padding: '14px 22px 16px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>LDL-Bodipy Fluorescent Uptake · LDLR Rescue Assay</SectionLabel>
+        <div style={{ paddingLeft: 44, paddingTop: 8 }}>
+          <LDLChart />
+        </div>
+      </div>
+
+      {/* ── Pass/fail summary ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Efficacy Criteria Assessment</SectionLabel>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          {[
+            { criterion: 'PCSK9 protein knockdown ≥80%',  value: '87% knockdown (F3 1.0 mg/kg)', pass: true  },
+            { criterion: 'LDL uptake ≥2.5× vs. untreated', value: '3.2× increase',                pass: true  },
+            { criterion: 'GAPDH loading control uniform',  value: 'CV <5% across lanes',           pass: true  },
+            { criterion: 'Vehicle ctrl ≤10% knockdown',    value: '3% — no off-target effect',     pass: true  },
+          ].map(({ criterion, value, pass }) => (
+            <div key={criterion} style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              background: pass ? 'rgba(16,185,129,0.04)' : 'rgba(239,68,68,0.04)',
+              border: `1px solid ${pass ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)'}`,
+              borderRadius: 5, padding: '7px 10px',
+            }}>
+              <div style={{
+                width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
+                background: pass ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                fontSize: 9, color: pass ? GREEN : '#ef4444',
+              }}>
+                {pass ? '✓' : '✗'}
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontSize: 9, color: '#64748b' }}>{criterion}</div>
+                <div style={{ fontSize: 9, fontFamily: 'monospace', color: pass ? GREEN : '#ef4444', marginTop: 1 }}>
+                  {value}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Interpretation ── */}
+      <div style={{ padding: '14px 22px', borderBottom: '1px solid #0d1a2a', flexShrink: 0 }}>
+        <SectionLabel>Functional Efficacy Summary</SectionLabel>
+        <div style={{
+          fontSize: 10, color: '#64748b', lineHeight: 1.6,
+          background: 'rgba(16,185,129,0.04)', border: '1px solid rgba(16,185,129,0.12)',
+          borderRadius: 6, padding: '10px 12px',
+        }}>
+          <span style={{ color: GREEN, fontWeight: 600 }}>F3-LNP at 1.0 mg/kg</span> meets all functional
+          pass criteria: <span style={{ color: GREEN }}>87% PCSK9 protein knockdown</span> (target ≥80%) and{' '}
+          <span style={{ color: GREEN }}>3.2× LDL-Bodipy uptake</span> confirm LDLR surface rescue.
+          GAPDH bands are uniform across all lanes, validating equal protein loading.
+          Vehicle control shows no off-target reduction (3%), confirming knockdown is
+          LNP-delivery-dependent. The program now advances to off-target safety screening.
+        </div>
+      </div>
+
+      {/* ── CTA ── */}
+      <div style={{ padding: '18px 22px', flexShrink: 0 }}>
+        <div style={{ fontSize: 9, fontFamily: 'monospace', color: '#334155', marginBottom: 12 }}>
+          All efficacy criteria met — confirm to unlock Phase 5: Off-Target Safety Screen
+        </div>
+        <CtaButton color={GREEN} onClick={() => onConfirm('F3-1.0mg/kg')}>
+          Confirm Functional Efficacy → Advance to Safety Screen
+        </CtaButton>
+      </div>
+    </>
+  )
+}
+
 // ── Shared micro-components ───────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -680,6 +1002,16 @@ const PHASE_META = {
       { text: '12 conditions screened',     color: '#334155' },
       { text: '4 formulations × 3 doses',   color: '#a855f7' },
       { text: 'F3 leads at 89% knockdown',  color: '#c084fc' },
+    ],
+  },
+  'functional-validation': {
+    label: 'Phase 4 Complete — Functional Validation',
+    title: 'Protein Knockdown & LDL Rescue',
+    color: '#10b981',
+    stats: [
+      { text: '5 conditions assayed',            color: '#334155' },
+      { text: 'F3 1.0 mg/kg: 87% knockdown',    color: '#10b981' },
+      { text: '3.2× LDL uptake rescued',         color: '#34d399' },
     ],
   },
 } as const
@@ -754,9 +1086,10 @@ export default function ResultsDrawer() {
       </div>
 
       {/* Phase-specific content */}
-      {resultsPhaseId === 'target-validation' && <Phase1Content onConfirm={handleConfirm} />}
-      {resultsPhaseId === 'guide-screen'      && <Phase2Content onConfirm={handleConfirm} />}
-      {resultsPhaseId === 'delivery-opt'      && <Phase3Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'target-validation'    && <Phase1Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'guide-screen'          && <Phase2Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'delivery-opt'          && <Phase3Content onConfirm={handleConfirm} />}
+      {resultsPhaseId === 'functional-validation' && <Phase4Content onConfirm={handleConfirm} />}
     </div>
   )
 }
